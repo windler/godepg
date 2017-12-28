@@ -48,7 +48,7 @@ godepg -p github.com/windler/godepg -o ~/godepg_package.png
 ```
 ![godepg graph](godepg_graph.png)
 
-#Future work
+# Future work
 - recognize and render isolated subgraphs
 - render dependencies of go-file 
 
