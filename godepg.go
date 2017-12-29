@@ -6,10 +6,13 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli"
 
+	"github.com/windler/godepg/config"
 	"github.com/windler/godepg/graphviz"
+	"github.com/windler/godepg/http"
 	"github.com/windler/godepg/matcher"
 )
 
@@ -22,7 +25,6 @@ func main() {
 	app.Version = "1.0.0"
 	app.Description = "Create a dependency graph for ypur go package."
 	app.Usage = "go dependency graph generator"
-	app.UsageText = "godepg -p <package> -o <output file> [global options]"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "o, output",
@@ -51,17 +53,40 @@ func main() {
 		},
 	}
 
+	app.Commands = []cli.Command{
+		cli.Command{
+			Action: func(c *cli.Context) error {
+				http.StartWebServer(c.Int64("p"))
+				return nil
+			},
+			Name:  "ws",
+			Usage: "starts a webserver to browse all of your generated graphs",
+			Flags: []cli.Flag{
+				cli.Int64Flag{
+					Value: 8000,
+					Name:  "p, port",
+					Usage: "start webserver on `port`",
+				},
+			},
+		},
+	}
+
 	app.Run(os.Args)
 }
 
 func action(c *cli.Context) error {
-
-	if c.String("p") == "" || c.String("o") == "" {
+	if c.String("p") == "" {
 		cli.ShowAppHelpAndExit(c, 2)
 	}
 
 	pkg := c.String("p")
 	outFile := c.String("o")
+	if c.String("o") == "" {
+		pkgName := strings.Replace(pkg, "/", "_", -1)
+		pkgName = strings.Replace(pkgName, ".", "_", -1)
+
+		outFile = config.GetDefaultHomeDir() + "/" + pkgName + "_" + time.Now().Format("20060102150405") + ".png"
+	}
 	dotFile := outFile + ".dot"
 
 	graph := createGraph(c, pkg)
