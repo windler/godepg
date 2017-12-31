@@ -100,11 +100,11 @@ Deps: 5
 ```
 
 You can use the following fields:
-| Field | Description |
-|---|---|---|---|---|
-| Package | The name of the scanned package |
-| Count | Number of found dependencies |
-| Dependencies | Array of packages |
+| Field          | Description                                        |
+|----------------|----------------------------------------------------|
+| Package        | The name of the scanned package                    |
+| Count          | Number of found dependencies                       |
+| Dependencies   | Array of packages                                  |
 | DependencyType | Type of the dependencies (dependency or dependent) |
 
 # Future work
