@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	figure "github.com/common-nighthawk/go-figure"
 	"github.com/windler/godepg/config"
 )
 
@@ -32,6 +33,9 @@ func StartWebServer(port int64) {
 func (ws *webServer) serve() {
 	fs := http.FileServer(http.Dir(ws.root))
 	http.Handle("/", fs)
+
+	figure.NewFigure("godepg", "", true).Print()
+	fmt.Println("")
 
 	fmt.Println("Started webserver on port " + strconv.FormatInt(ws.port, 10) + "...")
 	fmt.Println("http://localhost:" + strconv.FormatInt(ws.port, 10))
