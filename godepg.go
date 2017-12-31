@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
+	"reflect"
 	"strings"
 	"time"
 
@@ -59,6 +62,11 @@ func main() {
 			Name:  "inverse",
 			Usage: "shows all packages that depend on `package` rather than its dependencies",
 		},
+		cli.StringFlag{
+			Name:  "format",
+			Usage: "formats the dependencies output (--info)",
+			Value: "There are {{.Count}} {{.DependencyType}} for package {{.Package}}:\n\n{{range $i, $v := .Dependencies}}{{$i}}: {{$v}}\n{{end}}",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -100,45 +108,81 @@ func action(c *cli.Context) error {
 	graph := createGraph(c, pkg)
 
 	if c.String("info") != "" {
-		printDeps(c, graph)
-	} else {
-		render(graph, dotFile, outFile)
+		return printDeps(c, graph)
 	}
 
+	render(graph, dotFile, outFile)
 	return nil
+
 }
 
-func printDeps(c *cli.Context, graph *graph.Graph) {
+type depsValues struct {
+	Package        string
+	Count          int
+	Dependencies   []string
+	DependencyType string
+}
+
+func printDeps(c *cli.Context, graph *graph.Graph) error {
 	depsPkg := c.String("info")
 	deps := []string{}
+	depsUnquoted := []string{}
+	depsValues := &depsValues{
+		Package: c.String("info"),
+	}
+
+	t := template.New("deps")
+	_, err := t.Parse(c.String("format"))
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return err
+	}
 
 	if c.Bool("inverse") {
 		deps = graph.GetDependents(depsPkg)
-		fmt.Printf("There are %d dependents for package %s:\n\n", len(deps), depsPkg)
+		depsValues.DependencyType = "dependents"
 	} else {
 		deps = graph.GetDependencies(depsPkg)
-		fmt.Printf("There are %d dependencies for package %s:\n\n", len(deps), depsPkg)
+		depsValues.DependencyType = "dependencies"
 	}
 
+	depsValues.Count = len(deps)
+
 	for _, d := range deps {
-		fmt.Println(d)
+		depsUnquoted = append(depsUnquoted, strings.Replace(d, "\"", "", -1))
 	}
+	depsValues.Dependencies = depsUnquoted
+
+	err = t.Execute(os.Stdout, depsValues)
+	if err != nil {
+		str := reflect.ValueOf(depsValues).Elem()
+
+		fmt.Println(err.Error())
+		fmt.Println("")
+		fmt.Println("Available fields: ")
+
+		for i := 0; i < str.NumField(); i++ {
+			fmt.Println(str.Type().Field(i).Name)
+		}
+	}
+	return nil
 }
 
 func render(graph *graph.Graph, dotFile, outFile string) {
 	err := ioutil.WriteFile(dotFile, []byte(graph.GetDotFileContent()), os.ModePerm)
 	if err != nil {
-		cli.HandleExitCoder(err)
+		log.Fatal(err.Error())
 	}
 
 	_, err = exec.Command("dot", "-Tpng", dotFile, "-o", outFile).Output()
 	if err != nil {
-		cli.HandleExitCoder(err)
+		log.Fatal(err.Error())
 	}
 
 	err = os.Remove(dotFile)
 	if err != nil {
-		cli.HandleExitCoder(err)
+		log.Fatal(err.Error())
 	}
 
 	fmt.Println("Written to " + outFile)
@@ -149,7 +193,7 @@ func createGraph(c *cli.Context, pkg string) *graph.Graph {
 
 	data, err := exec.Command("go", "list", "-f", "{{ .ImportPath }}->{{ .Imports }}", pkg+"/...").Output()
 	if err != nil {
-		cli.HandleExitCoder(err)
+		log.Fatal(err.Error())
 	}
 
 	lines := strings.Split(string(data), "]")
