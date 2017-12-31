@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/windler/godepg/config"
-	"github.com/windler/godepg/graphviz"
+	"github.com/windler/godepg/graph"
 	"github.com/windler/godepg/http"
 	"github.com/windler/godepg/matcher"
 )
@@ -50,6 +50,14 @@ func main() {
 		cli.BoolFlag{
 			Name:  "m, my-packages-only",
 			Usage: "show only subpackages of scanned package",
+		},
+		cli.StringFlag{
+			Name:  "i, info",
+			Usage: "shows the dependencies for a `package`",
+		},
+		cli.BoolFlag{
+			Name:  "inverse",
+			Usage: "shows all packages that depend on `package` rather than its dependencies",
 		},
 	}
 
@@ -91,13 +99,33 @@ func action(c *cli.Context) error {
 
 	graph := createGraph(c, pkg)
 
-	render(graph, dotFile, outFile)
-	fmt.Println("Written to " + outFile)
+	if c.String("info") != "" {
+		printDeps(c, graph)
+	} else {
+		render(graph, dotFile, outFile)
+	}
 
 	return nil
 }
 
-func render(graph *graphviz.Graph, dotFile, outFile string) {
+func printDeps(c *cli.Context, graph *graph.Graph) {
+	depsPkg := c.String("info")
+	deps := []string{}
+
+	if c.Bool("inverse") {
+		deps = graph.GetDependents(depsPkg)
+		fmt.Printf("There are %d dependents for package %s:\n\n", len(deps), depsPkg)
+	} else {
+		deps = graph.GetDependencies(depsPkg)
+		fmt.Printf("There are %d dependencies for package %s:\n\n", len(deps), depsPkg)
+	}
+
+	for _, d := range deps {
+		fmt.Println(d)
+	}
+}
+
+func render(graph *graph.Graph, dotFile, outFile string) {
 	err := ioutil.WriteFile(dotFile, []byte(graph.GetDotFileContent()), os.ModePerm)
 	if err != nil {
 		cli.HandleExitCoder(err)
@@ -112,10 +140,12 @@ func render(graph *graphviz.Graph, dotFile, outFile string) {
 	if err != nil {
 		cli.HandleExitCoder(err)
 	}
+
+	fmt.Println("Written to " + outFile)
 }
 
-func createGraph(c *cli.Context, pkg string) *graphviz.Graph {
-	graph := graphviz.New("godepg")
+func createGraph(c *cli.Context, pkg string) *graph.Graph {
+	graph := graph.New("godepg")
 
 	data, err := exec.Command("go", "list", "-f", "{{ .ImportPath }}->{{ .Imports }}", pkg+"/...").Output()
 	if err != nil {
@@ -133,7 +163,6 @@ func createGraph(c *cli.Context, pkg string) *graphviz.Graph {
 		from := packageDeps[0]
 		if len(packageDeps) > 1 {
 			for _, to := range strings.Split(packageDeps[1], " ") {
-				graph.AddNode(from)
 				addEdge(c, graph, from, to)
 			}
 		}
@@ -142,13 +171,15 @@ func createGraph(c *cli.Context, pkg string) *graphviz.Graph {
 	return graph
 }
 
-func addEdge(c *cli.Context, graph *graphviz.Graph, from, to string) {
+func addEdge(c *cli.Context, graph *graph.Graph, from, to string) {
 	filterMatcherFrom := matcher.NewFilterMatcher(from, c.StringSlice("f"))
 	filterMatcherTo := matcher.NewFilterMatcher(to, c.StringSlice("f"))
 
 	if filterMatcherFrom.Matches() || filterMatcherTo.Matches() {
 		return
 	}
+
+	graph.AddNode(from)
 
 	if c.Bool("n") && matcher.NewGoPAckagesMatcher(to).Matches() {
 		return
@@ -158,5 +189,5 @@ func addEdge(c *cli.Context, graph *graphviz.Graph, from, to string) {
 		return
 	}
 
-	graph.AddDirectedEdge().From(from).To(to)
+	graph.AddDirectedEdge(from, to)
 }
