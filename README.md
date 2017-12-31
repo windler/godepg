@@ -100,6 +100,7 @@ Deps: 5
 ```
 
 You can use the following fields:
+
 | Field          | Description                                        |
 |----------------|----------------------------------------------------|
 | Package        | The name of the scanned package                    |
