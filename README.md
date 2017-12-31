@@ -57,6 +57,48 @@ godepg -p github.com/windler/godepg
 ```
 ![godepg graph](godepg_graph.png)
 
+## Print dependencies
+You can also just print information about the dependencies of a package by using option `-i`:
+```(bash)
+godepg -p github.com/windler/asd -i github.com/windler/asd/config
+There are 8 dependencies for package github.com/windler/asd/config:
+
+0: github.com/urfave/cli
+1: github.com/windler/asd/app/common
+2: gopkg.in/yaml.v2
+3: io/ioutil
+4: log
+5: os
+6: os/user
+7: sync
+```
+
+### Get Dependents
+
+If you would like to see a list of packages that depend on a specific package, just add the `--inverse` option:
+```(bash)
+godepg -p github.com/windler/asd -i github.com/windler/asd/config --inverse
+There are 2 dependents for package github.com/windler/asd/config:
+
+0: github.com/windler/asd/app/commands
+1: github.com/windler/asd/app
+```
+
+### Modify output
+You can modify the output by passing a (`template`)[https://golang.org/pkg/html/template/] using `--format`: 
+```(bash)
+godepg -p github.com/windler/asd -i github.com/windler/asd --format "Deps: {{.Count}}"
+Deps: 5
+```
+
+You can use the following fields:
+| Field | Description |
+|---|---|---|---|---|
+| Package | The name of the scanned package |
+| Count | Number of found dependencies |
+| Dependencies | Array of packages |
+| DependencyType | Type of the dependencies (dependency or dependent) |
+
 # Future work
 - recognize and render isolated subgraphs
 - render dependencies of go-file 
