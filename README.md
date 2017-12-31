@@ -1,6 +1,14 @@
 # godepg
 `godepg` generates a dependency graph for a go package using `graphviz`.
 
+1. [Prerequisites](#prerequisites)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Generate graphs](#generate-graph)
+5. [Examples](#examples)
+6. [Print dependencies](#print-dependencies)
+7. [Future work](#future-work)
+
 ## Prerequisites
 In order to generate graphs you have to install [graphviz](https://graphviz.gitlab.io/)
 ## Installation
@@ -21,7 +29,7 @@ GLOBAL OPTIONS:
    --version, -v                  print the version
 ```
 
-## Output
+## Generate graphs
 All graphs are written to `~/godepg/<pkg>_timestamp.png` if option `-o` is not present. You can change the home directory by setting the env `GODEPG_HOME`.
 There is also a small build in webserver you can launch to browse the generated graphs in browser. Launch it with command `ws`:
 ```(bash)
