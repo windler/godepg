@@ -26,7 +26,7 @@ func main() {
 	app.Copyright = "2017"
 	app.Action = action
 	app.Version = "1.0.0"
-	app.Description = "Create a dependency graph for ypur go package."
+	app.Description = "Create a dependency graph for your go package."
 	app.Usage = "go dependency graph generator"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -225,7 +225,7 @@ func addEdge(c *cli.Context, graph *graph.Graph, from, to string) {
 
 	graph.AddNode(from)
 
-	if c.Bool("n") && matcher.NewGoPAckagesMatcher(to).Matches() {
+	if c.Bool("n") && matcher.NewGoPackagesMatcher(to).Matches() {
 		return
 	}
 

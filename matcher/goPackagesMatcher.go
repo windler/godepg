@@ -17,7 +17,7 @@ var (
 	goPackages *[]string
 )
 
-func NewGoPAckagesMatcher(text string) *GoPackagesMatcher {
+func NewGoPackagesMatcher(text string) *GoPackagesMatcher {
 	return &GoPackagesMatcher{
 		text: text,
 	}
