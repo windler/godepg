@@ -19,7 +19,6 @@ Simplest way to use the tool is to type `godepg -p <package> -o <file.png>`. The
 
 ```(bash)
 GLOBAL OPTIONS:
-   GLOBAL OPTIONS:
    -o file, --output file         destination file to write png to
    -p package, --package package  the package to analyze
    -n, --no-go-packages           hide gos buildin packages
@@ -27,7 +26,7 @@ GLOBAL OPTIONS:
    -f value, --filter value       filter package name
    -m, --my-packages-only         show only subpackages of scanned package
    -i package, --info package     shows the dependencies for a package
-   --inverse package              shows all packages that depend on package rather than its dependencies
+   --inverse                      shows all packages that depend on the package rather than its dependencies
    --format value                 formats the dependencies output (--info) (default: "There are {{.Count}} {{.DependencyType}} for package {{.Package}}:\n\n{{range $i, $v := .Dependencies}}{{$i}}: {{$v}}\n{{end}}")
    --help, -h                     show help
    --version, -v                  print the version

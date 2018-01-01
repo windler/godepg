@@ -60,7 +60,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "inverse",
-			Usage: "shows all packages that depend on `package` rather than its dependencies",
+			Usage: "shows all packages that depend on the package rather than its dependencies",
 		},
 		cli.StringFlag{
 			Name:  "format",
