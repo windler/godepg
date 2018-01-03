@@ -42,40 +42,40 @@ http://localhost:8000
 ```
 
 ## Examples
-Following you can find sample outputs of the [asd package](https://github.com/windler/asd).
+Following you can find sample outputs of the [ws package](https://github.com/windler/ws).
 
 ### Without go internal packages and specific output file
 ```(bash)
-godepg -p github.com/windler/asd -o ~/asd_package.png --no-go-packages
+godepg -p github.com/windler/ws -o ~/ws_package.png --no-go-packages
 ```
-![asd no go packages](asd_no_go_pkgs.png)
+![ws no go packages](images/ws_no_go_pkgs.png)
 
 ### Only sub packages
 ```(bash)
-godepg -p github.com/windler/asd --my-packages-only
+godepg -p github.com/windler/ws --my-packages-only
 ```
-![asd only sub](asd_my_only.png)
+![ws only sub](images/ws_my_only.png)
 
 ### Without go internal packages and custom filter
 ```(bash)
-godepg -p github.com/windler/asd --no-go-packages -f internal/test
+godepg -p github.com/windler/ws --no-go-packages -f internal/test
 ```
-![asd custom filter](asd_custom_filter.png)
+![ws custom filter](images/ws_custom_filter.png)
 
 ### Other package
 ```(bash)
 godepg -p github.com/windler/godepg
 ```
-![godepg graph](godepg_graph.png)
+![godepg graph](images/godepg_graph.png)
 
 ## Print dependencies
 You can also just print information about the dependencies of a package by using option `-i`:
 ```(bash)
-godepg -p github.com/windler/asd -i github.com/windler/asd/config
-There are 8 dependencies for package github.com/windler/asd/config:
+godepg -p github.com/windler/ws -i github.com/windler/ws/app/config
+There are 8 dependencies for package github.com/windler/ws/app/config:
 
 0: github.com/urfave/cli
-1: github.com/windler/asd/app/common
+1: github.com/windler/ws/app/common
 2: gopkg.in/yaml.v2
 3: io/ioutil
 4: log
@@ -88,17 +88,17 @@ There are 8 dependencies for package github.com/windler/asd/config:
 
 If you would like to see a list of packages that depend on a specific package, just add the `--inverse` option:
 ```(bash)
-godepg -p github.com/windler/asd -i github.com/windler/asd/config --inverse
-There are 2 dependents for package github.com/windler/asd/config:
+godepg -p github.com/windler/ws -i github.com/windler/ws/app/config --inverse
+There are 2 dependents for package github.com/windler/ws/app/config:
 
-0: github.com/windler/asd/app/commands
-1: github.com/windler/asd/app
+0: github.com/windler/ws/app/commands
+1: github.com/windler/ws/app
 ```
 
 ### Modify output
 You can modify the output by passing a (`template`)[https://golang.org/pkg/html/template/] using `--format`: 
 ```(bash)
-godepg -p github.com/windler/asd -i github.com/windler/asd --format "Deps: {{.Count}}"
+godepg -p github.com/windler/ws -i github.com/windler/ws --format "Deps: {{.Count}}"
 Deps: 5
 ```
 
