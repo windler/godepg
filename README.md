@@ -17,7 +17,7 @@ In order to generate graphs you have to install [graphviz](https://graphviz.gitl
 ## Usage
 Simplest way to use the tool is to type `godepg -p <package> -o <file.png>`. There are some options available which you can list via `godepg -h`:
 
-```(bash)
+```bash
 GLOBAL OPTIONS:
    -o file, --output file         destination file to write png to
    -p package, --package package  the package to analyze
@@ -45,25 +45,25 @@ http://localhost:8000
 Following you can find sample outputs of the [ws package](https://github.com/windler/ws).
 
 ### Without go internal packages and specific output file
-```(bash)
+```bash
 godepg -p github.com/windler/ws -o ~/ws_package.png --no-go-packages
 ```
 ![ws no go packages](images/ws_no_go_pkgs.png)
 
 ### Only sub packages
-```(bash)
+```bash
 godepg -p github.com/windler/ws --my-packages-only
 ```
 ![ws only sub](images/ws_my_only.png)
 
 ### Without go internal packages and custom filter
-```(bash)
+```bash
 godepg -p github.com/windler/ws --no-go-packages -f internal/test
 ```
 ![ws custom filter](images/ws_custom_filter.png)
 
 ### Other package
-```(bash)
+```bash
 godepg -p github.com/windler/godepg
 ```
 ![godepg graph](images/godepg_graph.png)
