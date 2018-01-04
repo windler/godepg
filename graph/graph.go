@@ -22,7 +22,18 @@ func New(name string) *Graph {
 
 //AddNode add a node to string. There does not have to be an edge for a node.
 func (g *Graph) AddNode(node string) {
-	g.nodes = append(g.nodes, getIDSafeNodeName(node))
+	contains := false
+	new := getIDSafeNodeName(node)
+
+	for _, n := range g.nodes {
+		if n == new {
+			contains = true
+			break
+		}
+	}
+	if !contains {
+		g.nodes = append(g.nodes, new)
+	}
 }
 
 //GetDotFileContent create the content of a dot-file (graphviz)
@@ -31,7 +42,9 @@ func (g *Graph) GetDotFileContent() string {
 
 	for from, deps := range g.edges {
 		for _, to := range deps {
-			content = append(content, from+"->"+to)
+			if from != `""` && to != `""` {
+				content = append(content, from+"->"+to)
+			}
 		}
 	}
 	for _, node := range g.nodes {

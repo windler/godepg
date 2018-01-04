@@ -170,7 +170,10 @@ func printDeps(c *cli.Context, graph *graph.Graph) error {
 }
 
 func render(graph *graph.Graph, dotFile, outFile string) {
-	err := ioutil.WriteFile(dotFile, []byte(graph.GetDotFileContent()), os.ModePerm)
+	content := graph.GetDotFileContent()
+	fmt.Println(content)
+
+	err := ioutil.WriteFile(dotFile, []byte(content), os.ModePerm)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
