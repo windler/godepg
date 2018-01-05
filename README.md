@@ -58,7 +58,7 @@ godepg -p github.com/windler/ws --my-packages-only
 
 ### Without go internal packages and custom filter
 ```bash
-godepg -p github.com/windler/ws --no-go-packages -f apptest -f commonCommands
+godepg -p github.com/windler/ws --no-go-packages -f ui -f /git
 ```
 ![ws custom filter](images/ws_custom_filter.png)
 
