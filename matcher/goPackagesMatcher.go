@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"regexp"
+	"strings"
 )
 
 type GoPackagesMatcher struct {
@@ -25,8 +25,7 @@ func NewGoPackagesMatcher(text string) *GoPackagesMatcher {
 
 func (f *GoPackagesMatcher) Matches() bool {
 	for _, m := range getGoPackages() {
-		matches, _ := regexp.MatchString(m, f.text)
-		if matches {
+		if m == f.text || strings.HasPrefix(f.text, m+"/") {
 			return true
 		}
 	}
