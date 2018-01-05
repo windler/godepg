@@ -1,0 +1,52 @@
+package dotgraph
+
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+)
+
+type PNGRenderer struct {
+	HomeDir    string
+	Prefix     string
+	OutputFile string
+}
+
+func (r PNGRenderer) Render(graphContent string) {
+	outFile := r.getOutputFile()
+	dotFile := outFile + ".dot"
+
+	fmt.Println(graphContent)
+
+	err := ioutil.WriteFile(dotFile, []byte(graphContent), os.ModePerm)
+	if err != nil {
+		log.Fatal("Error writing dot file.", err.Error())
+	}
+
+	_, err = exec.Command("dot", "-Tpng", dotFile, "-o", outFile).Output()
+	if err != nil {
+		log.Fatal("Error creating png.", err.Error())
+	}
+
+	err = os.Remove(dotFile)
+	if err != nil {
+		log.Fatal("Error removing dot file.", err.Error())
+	}
+
+	fmt.Println("Written to " + outFile)
+}
+
+func (r PNGRenderer) getOutputFile() string {
+	outFile := r.OutputFile
+	if outFile == "" {
+		prefix := strings.Replace(r.Prefix, "/", "_", -1)
+		prefix = strings.Replace(prefix, ".", "_", -1)
+
+		outFile = r.HomeDir + "/" + prefix + "_" + time.Now().Format("20060102150405") + ".png"
+	}
+	return outFile
+}

@@ -1,19 +1,19 @@
-package graph
+package dotgraph
 
 import (
 	"strings"
 )
 
 //Graph represents the dependency graph of a package
-type Graph struct {
+type dotGraph struct {
 	name  string
 	edges map[string][]string
 	nodes []string
 }
 
 //New creates a new Graph with a given name
-func New(name string) *Graph {
-	return &Graph{
+func New(name string) *dotGraph {
+	return &dotGraph{
 		name:  name,
 		edges: make(map[string][]string),
 		nodes: []string{},
@@ -21,7 +21,7 @@ func New(name string) *Graph {
 }
 
 //AddNode add a node to string. There does not have to be an edge for a node.
-func (g *Graph) AddNode(node string) {
+func (g dotGraph) AddNode(node string) {
 	contains := false
 	new := getIDSafeNodeName(node)
 
@@ -37,7 +37,7 @@ func (g *Graph) AddNode(node string) {
 }
 
 //GetDotFileContent create the content of a dot-file (graphviz)
-func (g *Graph) GetDotFileContent() string {
+func (g dotGraph) String() string {
 	content := []string{"digraph " + g.name + " {"}
 
 	for from, deps := range g.edges {
@@ -66,7 +66,7 @@ func getIDSafeNodeName(id string) string {
 }
 
 //AddDirectedEdge adds an directed edge for two nodes to the graph
-func (g *Graph) AddDirectedEdge(from, to string) {
+func (g dotGraph) AddDirectedEdge(from, to string) {
 	saveFrom := getIDSafeNodeName(from)
 	saveTo := getIDSafeNodeName(to)
 	if _, found := g.edges[saveFrom]; !found {
@@ -76,7 +76,7 @@ func (g *Graph) AddDirectedEdge(from, to string) {
 }
 
 //GetDependencies returns alls direct dipendencies for a package within the graph
-func (g *Graph) GetDependencies(pkg string) []string {
+func (g dotGraph) GetDependencies(pkg string) []string {
 	dependencies := []string{}
 
 	for from, deps := range g.edges {
@@ -88,7 +88,7 @@ func (g *Graph) GetDependencies(pkg string) []string {
 }
 
 //GetDependents returns all packages that directly depend on the given package within the graph
-func (g *Graph) GetDependents(pkg string) []string {
+func (g dotGraph) GetDependents(pkg string) []string {
 	dependents := []string{}
 loop:
 	for from, deps := range g.edges {

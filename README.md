@@ -34,15 +34,9 @@ GLOBAL OPTIONS:
 
 ## Generate graphs
 All graphs are written to `~/godepg/<pkg>_timestamp.png` if option `-o` is not present. You can change the home directory by setting the env `GODEPG_HOME`.
-There is also a small build in webserver you can launch to browse the generated graphs in browser. Launch it with command `ws`:
-```(bash)
-godepg ws
-Started webserver on port 8000...
-http://localhost:8000
-```
 
 ## Examples
-Following you can find sample outputs of the [ws package](https://github.com/windler/ws).
+Following, you can find sample outputs of the [ws package](https://github.com/windler/ws).
 
 ### Without go internal packages and specific output file
 ```bash
@@ -61,6 +55,12 @@ godepg -p github.com/windler/ws --my-packages-only
 godepg -p github.com/windler/ws --no-go-packages -f ui -f /git
 ```
 ![ws custom filter](images/ws_custom_filter.png)
+
+### godepg package graph
+```bash
+godepg -p github.com/windler/godepg
+```
+![godepg graph](images/godepg.png)
 
 ## Print dependencies
 You can also just print information about the dependencies of a package by using option `-i`:
