@@ -62,12 +62,6 @@ godepg -p github.com/windler/ws --no-go-packages -f ui -f /git
 ```
 ![ws custom filter](images/ws_custom_filter.png)
 
-### Other package
-```bash
-godepg -p github.com/windler/godepg
-```
-![godepg graph](images/godepg_graph.png)
-
 ## Print dependencies
 You can also just print information about the dependencies of a package by using option `-i`:
 ```(bash)
