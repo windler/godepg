@@ -58,7 +58,7 @@ godepg -p github.com/windler/ws --no-go-packages -f ui -f /git
 
 ### godepg package graph
 ```bash
-godepg -p github.com/windler/godepg
+godepg -p github.com/windler/godepg -n
 ```
 ![godepg graph](images/godepg.png)
 
@@ -66,16 +66,15 @@ godepg -p github.com/windler/godepg
 You can also just print information about the dependencies of a package by using option `-i`:
 ```(bash)
 godepg -p github.com/windler/ws -i github.com/windler/ws/app/config
-There are 8 dependencies for package github.com/windler/ws/app/config:
+There are 7 dependencies for package github.com/windler/ws/app/config:
 
-0: github.com/urfave/cli
-1: github.com/windler/ws/app/common
-2: gopkg.in/yaml.v2
-3: io/ioutil
-4: log
-5: os
-6: os/user
-7: sync
+0: github.com/windler/ws/app/commands
+1: gopkg.in/yaml.v2
+2: io/ioutil
+3: log
+4: os
+5: os/user
+6: strings
 ```
 
 ### Get Dependents
@@ -83,10 +82,9 @@ There are 8 dependencies for package github.com/windler/ws/app/config:
 If you would like to see a list of packages that depend on a specific package, just add the `--inverse` option:
 ```(bash)
 godepg -p github.com/windler/ws -i github.com/windler/ws/app/config --inverse
-There are 2 dependents for package github.com/windler/ws/app/config:
+There are 1 dependents for package github.com/windler/ws/app/config:
 
-0: github.com/windler/ws/app/commands
-1: github.com/windler/ws/app
+0: github.com/windler/ws
 ```
 
 ### Modify output
