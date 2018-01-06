@@ -8,7 +8,6 @@ import (
 type dotGraph struct {
 	name  string
 	edges map[string][]string
-	nodes []string
 }
 
 //New creates a new Graph with a given name
@@ -16,23 +15,14 @@ func New(name string) *dotGraph {
 	return &dotGraph{
 		name:  name,
 		edges: make(map[string][]string),
-		nodes: []string{},
 	}
 }
 
 //AddNode add a node to string. There does not have to be an edge for a node.
 func (g dotGraph) AddNode(node string) {
-	contains := false
 	new := getIDSafeNodeName(node)
-
-	for _, n := range g.nodes {
-		if n == new {
-			contains = true
-			break
-		}
-	}
-	if !contains {
-		g.nodes = append(g.nodes, new)
+	if g.edges[new] == nil {
+		g.edges[new] = []string{}
 	}
 }
 
@@ -41,14 +31,12 @@ func (g dotGraph) String() string {
 	content := []string{"digraph " + g.name + " {"}
 
 	for from, deps := range g.edges {
+		content = append(content, from)
 		for _, to := range deps {
 			if from != `""` && to != `""` {
 				content = append(content, from+"->"+to)
 			}
 		}
-	}
-	for _, node := range g.nodes {
-		content = append(content, node)
 	}
 	content = append(content, "}")
 

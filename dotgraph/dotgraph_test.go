@@ -12,7 +12,6 @@ func TestEmptyGraph(t *testing.T) {
 
 	assert.Equal(t, "my test graph", g.name)
 	assert.Equal(t, 0, len(g.edges))
-	assert.Equal(t, 0, len(g.nodes))
 }
 
 func TestDotFile(t *testing.T) {
@@ -27,13 +26,13 @@ func TestDotFile(t *testing.T) {
 	g.AddDirectedEdge("nodeC", "nodeB")
 	g.AddDirectedEdge("nodeA", "nodeC")
 
-	assert.Equal(t, 2, len(g.edges))
+	assert.Equal(t, 4, len(g.edges))
 	assert.Equal(t, 2, len(g.edges[`"nodeA"`]))
+	assert.Equal(t, 0, len(g.edges[`"nodeB"`]))
 	assert.Equal(t, 1, len(g.edges[`"nodeC"`]))
+	assert.Equal(t, 0, len(g.edges[`"nodeD"`]))
 
-	assert.Equal(t, 4, len(g.nodes))
-
-	dotFile := g.GetDotFileContent()
+	dotFile := g.String()
 	assert.True(t, strings.Contains(dotFile, `digraph test_graph`))
 	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeB"`))
 	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeC"`))
@@ -52,15 +51,14 @@ func TestGetDependencies(t *testing.T) {
 	g.AddNode("nodeC")
 
 	g.AddDirectedEdge("nodeA", "nodeB")
-	g.AddDirectedEdge("nodeC", "nodeB")
-	g.AddDirectedEdge("nodeA", "nodeC")
+	g.AddDirectedEdge("nodeB", "nodeC")
 
-	assert.Equal(t, []string{`"nodeB"`, `"nodeC"`}, g.GetDependencies("nodeA"))
+	assert.Equal(t, []string{`"nodeB"`}, g.GetDependencies("nodeA"))
 	assert.Equal(t, []string{}, g.GetDependents("nodeA"))
 
-	assert.Equal(t, []string{}, g.GetDependencies("nodeB"))
-	assert.Equal(t, []string{`"nodeA"`, `"nodeC"`}, g.GetDependents("nodeB"))
+	assert.Equal(t, []string{`"nodeC"`}, g.GetDependencies("nodeB"))
+	assert.Equal(t, []string{`"nodeA"`}, g.GetDependents("nodeB"))
 
-	assert.Equal(t, []string{`"nodeB"`}, g.GetDependencies("nodeC"))
-	assert.Equal(t, []string{`"nodeA"`}, g.GetDependents("nodeC"))
+	assert.Equal(t, []string{}, g.GetDependencies("nodeC"))
+	assert.Equal(t, []string{`"nodeB"`}, g.GetDependents("nodeC"))
 }
