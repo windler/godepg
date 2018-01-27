@@ -157,16 +157,19 @@ func createPHPCommand() cli.Command {
 }
 
 type config struct {
-	Language string
-	Project  string
-	Filter   []string
-	Depth    int
-	StopAt   []string
-	Output   string
+	Language   string
+	Project    string
+	Filter     []string
+	Depth      int
+	StopAt     []string
+	Output     string
+	Edgestyle  map[string]dotgraph.DotGraphOptions
+	Nodestyle  dotgraph.DotGraphOptions
+	Graphstyle dotgraph.DotGraphOptions
 }
 
 //GenerateGraphFromConfig reads a config file and generates a graph based on the config
-func GenerateGraphFromConfig(file string, g action.Graph, c action.Context) {
+func GenerateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context) {
 	defer (func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -187,6 +190,14 @@ func GenerateGraphFromConfig(file string, g action.Graph, c action.Context) {
 	yaml.Unmarshal(data, cfg)
 
 	prepareContext(file, cfg, c)
+
+	for pattern, options := range cfg.Edgestyle {
+		g.AddEdgeGraphOptions(pattern, options)
+	}
+
+	g.SetNodeGraphOptions(cfg.Nodestyle)
+	g.SetGraphOptions(cfg.Graphstyle)
+
 	renderer := &dotgraph.PNGRenderer{
 		HomeDir:    getDefaultHomeDir(),
 		Prefix:     "godepg",
@@ -206,8 +217,6 @@ func GenerateGraphFromConfig(file string, g action.Graph, c action.Context) {
 func prepareContext(file string, cfg *config, context action.Context) {
 	context.SetStringSliceFlag("f", cfg.Filter)
 	context.SetStringSliceFlag("s", cfg.StopAt)
-
-	fmt.Println(cfg.StopAt)
 
 	context.SetStringFlag("p", cfg.Project)
 	if cfg.Project == "" {

@@ -76,6 +76,36 @@ filter:
 depth: 3
 ```
 
+### Styling graphs using config
+If you are using a config file you can also apply any [dot attributes](https://graphviz.gitlab.io/_pages/doc/info/attrs.html) to style your graph. For examle the following config
+```yaml
+language: php
+output: /home/windler/projects/sample/deps.png
+filter:
+- php
+depth: 3
+edgestyle:
+  "":
+    arrowhead: open
+    color: white
+    fontcolor: white
+    splines: curved
+  sample:
+    arrowhead: vee
+    fontname: Courier
+    style: dashed
+nodestyle:
+  fillcolor: "#336699" 
+  style: filled
+  fontcolor: white
+  fontname: Courier
+  shape: rectangle
+graphstyle:
+  bgcolor: "#333333"
+```
+generates this graph:
+![styled graph](images/style.png)
+
 After creating a config file, you can always update your current dependy graph using
 ```bash
 cd /home/windler/projects/sample

@@ -1,13 +1,17 @@
 package dotgraph
 
 import (
+	"regexp"
 	"strings"
 )
 
 //DotGraph create a directed graph in dot notation
 type DotGraph struct {
-	name  string
-	edges map[string][]edge
+	name         string
+	edges        map[string][]edge
+	edgeOptions  map[string]DotGraphOptions
+	nodeOptions  DotGraphOptions
+	graphOptions DotGraphOptions
 }
 
 type edge struct {
@@ -15,11 +19,16 @@ type edge struct {
 	description string
 }
 
+type DotGraphOptions map[string]string
+
 //New creates a new Graph with a given name
 func New(name string) *DotGraph {
 	return &DotGraph{
-		name:  name,
-		edges: make(map[string][]edge),
+		name:         name,
+		edges:        make(map[string][]edge),
+		edgeOptions:  make(map[string]DotGraphOptions),
+		nodeOptions:  DotGraphOptions{},
+		graphOptions: DotGraphOptions{},
 	}
 }
 
@@ -34,18 +43,80 @@ func (g DotGraph) AddNode(node string) {
 //GetDotFileContent create the content of a dot-file (graphviz)
 func (g DotGraph) String() string {
 	content := []string{"digraph " + g.name + " {"}
+	if graphStyle := createGraphOptionsString(g.graphOptions); graphStyle != "" {
+		content = append(content, "graph "+graphStyle)
+	}
+	if nodeStyle := createGraphOptionsString(g.nodeOptions); nodeStyle != "" {
+		content = append(content, "node "+nodeStyle)
+	}
 
 	for from, deps := range g.edges {
 		content = append(content, from)
+
 		for _, to := range deps {
 			if from != `""` && to.nodeID != `""` {
-				content = append(content, from+"->"+to.nodeID+"[label=\""+to.description+"\"]")
+				edgeStyle := g.createEdgeOptionsString(from, to.nodeID, to.description)
+				content = append(content, from+"->"+to.nodeID+edgeStyle)
 			}
 		}
 	}
 	content = append(content, "}")
 
 	return strings.Join(content, "\n")
+}
+
+func (g DotGraph) createEdgeOptionsString(from, to, description string) string {
+	options := []string{}
+	if description != "" {
+		options = append(options, "label=\""+description+"\"")
+	}
+
+	for pattern, ops := range g.edgeOptions {
+		matchesFrom, _ := regexp.MatchString(pattern, from)
+		matchesTo, _ := regexp.MatchString(pattern, to)
+
+		if matchesFrom || matchesTo {
+			for attr, val := range ops {
+				options = append(options, strings.ToLower(attr)+"=\""+val+"\"")
+			}
+		}
+	}
+	if len(options) == 0 {
+		return ""
+	}
+
+	return "[" + strings.Join(options, " ") + "]"
+}
+
+func createGraphOptionsString(gOptions DotGraphOptions) string {
+	options := []string{}
+	for attr, val := range gOptions {
+		options = append(options, strings.ToLower(attr)+"=\""+val+"\"")
+	}
+	if len(options) == 0 {
+		return ""
+	}
+
+	return "[" + strings.Join(options, " ") + "]"
+}
+
+//AddEdgeGraphOptions adds options that applies options to edges when pattern matches
+func (g DotGraph) AddEdgeGraphOptions(pattern string, options DotGraphOptions) {
+	g.edgeOptions[pattern] = options
+}
+
+//SetNodeGraphOptions sets options that apply to all nodes
+func (g DotGraph) SetNodeGraphOptions(options DotGraphOptions) {
+	for k, v := range options {
+		g.nodeOptions[k] = v
+	}
+}
+
+//SetGraphOptions sets options that apply to the graph
+func (g DotGraph) SetGraphOptions(options DotGraphOptions) {
+	for k, v := range options {
+		g.graphOptions[k] = v
+	}
 }
 
 func getIDSafeNodeName(id string) string {

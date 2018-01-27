@@ -34,8 +34,8 @@ func TestDotFile(t *testing.T) {
 
 	dotFile := g.String()
 	assert.True(t, strings.Contains(dotFile, `digraph test_graph`))
-	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeB"[label=""]`))
-	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeC"[label=""]`))
+	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeB"`))
+	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeC"`))
 	assert.True(t, strings.Contains(dotFile, `"nodeC"->"nodeB"[label="fancy"]`))
 	assert.True(t, strings.Contains(dotFile, `"nodeA"`))
 	assert.True(t, strings.Contains(dotFile, `"nodeB"`))
