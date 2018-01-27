@@ -26,7 +26,49 @@ func main() {
 			Prefix:     pkg,
 			OutputFile: c.String("output"),
 		}
-		action.GraphAction(graph, renderer, c)
+		action.GoGraphAction(graph, renderer, c)
+	}
+	app.Commands = cli.Commands{
+		cli.Command{
+			Name: "php",
+			Action: func(c *cli.Context) {
+				project := c.String("p")
+				if project == "" {
+					cli.ShowAppHelpAndExit(c, 2)
+				}
+
+				graph := dotgraph.New("php_composer")
+				renderer := &dotgraph.PNGRenderer{
+					HomeDir:    getDefaultHomeDir(),
+					Prefix:     project,
+					OutputFile: c.String("output"),
+				}
+				action.ComposerGraphAction(graph, renderer, c)
+			},
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "o, output",
+					Usage: "destination `file` to write png to",
+				},
+				cli.StringFlag{
+					Name:  "p, project",
+					Usage: "the `project` to analyze",
+				},
+				cli.StringSliceFlag{
+					Name:  "f, filter",
+					Usage: "filter project name",
+				},
+				cli.StringSliceFlag{
+					Name:  "s, stop-at",
+					Usage: "dont scan dependencies of package name (pattern)",
+				},
+				cli.IntFlag{
+					Name:  "d, depth",
+					Value: -1,
+					Usage: "limit the depth of the graph",
+				},
+			},
+		},
 	}
 	app.Version = "1.0.0"
 	app.Description = "Create a dependency graph for your go package."

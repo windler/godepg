@@ -7,14 +7,19 @@ import (
 //Graph represents the dependency graph of a package
 type dotGraph struct {
 	name  string
-	edges map[string][]string
+	edges map[string][]edge
+}
+
+type edge struct {
+	nodeId      string
+	description string
 }
 
 //New creates a new Graph with a given name
 func New(name string) *dotGraph {
 	return &dotGraph{
 		name:  name,
-		edges: make(map[string][]string),
+		edges: make(map[string][]edge),
 	}
 }
 
@@ -22,7 +27,7 @@ func New(name string) *dotGraph {
 func (g dotGraph) AddNode(node string) {
 	new := getIDSafeNodeName(node)
 	if g.edges[new] == nil {
-		g.edges[new] = []string{}
+		g.edges[new] = []edge{}
 	}
 }
 
@@ -33,8 +38,8 @@ func (g dotGraph) String() string {
 	for from, deps := range g.edges {
 		content = append(content, from)
 		for _, to := range deps {
-			if from != `""` && to != `""` {
-				content = append(content, from+"->"+to)
+			if from != `""` && to.nodeId != `""` {
+				content = append(content, from+"->"+to.nodeId+"[label=\""+to.description+"\"]")
 			}
 		}
 	}
@@ -54,13 +59,24 @@ func getIDSafeNodeName(id string) string {
 }
 
 //AddDirectedEdge adds an directed edge for two nodes to the graph
-func (g dotGraph) AddDirectedEdge(from, to string) {
+func (g dotGraph) AddDirectedEdge(from, to, description string) {
 	saveFrom := getIDSafeNodeName(from)
 	saveTo := getIDSafeNodeName(to)
+
 	if _, found := g.edges[saveFrom]; !found {
-		g.edges[saveFrom] = []string{}
+		g.edges[saveFrom] = []edge{}
 	}
-	g.edges[saveFrom] = append(g.edges[saveFrom], saveTo)
+
+	for _, edge := range g.edges[saveFrom] {
+		if edge.nodeId == saveTo {
+			return
+		}
+	}
+
+	g.edges[saveFrom] = append(g.edges[saveFrom], edge{
+		nodeId:      saveTo,
+		description: description,
+	})
 }
 
 //GetDependencies returns alls direct dipendencies for a package within the graph
@@ -69,7 +85,9 @@ func (g dotGraph) GetDependencies(pkg string) []string {
 
 	for from, deps := range g.edges {
 		if from == getIDSafeNodeName(pkg) {
-			dependencies = deps
+			for _, edge := range deps {
+				dependencies = append(dependencies, edge.nodeId)
+			}
 		}
 	}
 	return dependencies
@@ -81,7 +99,7 @@ func (g dotGraph) GetDependents(pkg string) []string {
 loop:
 	for from, deps := range g.edges {
 		for _, to := range deps {
-			if to == getIDSafeNodeName(pkg) {
+			if to.nodeId == getIDSafeNodeName(pkg) {
 				dependents = append(dependents, from)
 				continue loop
 			}

@@ -9,7 +9,7 @@ import (
 	"github.com/windler/godepg/action/matcher"
 )
 
-func GraphAction(g Graph, r GraphRenderer, c *cli.Context) {
+func GoGraphAction(g Graph, r GraphRenderer, c *cli.Context) {
 	pkg := c.String("p")
 	buildGraph(&g, c, pkg)
 
@@ -37,29 +37,31 @@ func buildGraph(graph *Graph, c *cli.Context, pkg string) {
 		from := packageDeps[0]
 		if len(packageDeps) > 1 {
 			for _, to := range strings.Split(packageDeps[1], " ") {
-				addEdge(c, graph, from, to)
+				addEdge(c, graph, from, to, "")
 			}
 		}
 	}
 }
 
-func addEdge(c *cli.Context, graph *Graph, from, to string) {
+func addEdge(c *cli.Context, graph *Graph, from, to, description string) bool {
 	filterMatcherFrom := matcher.NewFilterMatcher(from, c.StringSlice("f"))
 	filterMatcherTo := matcher.NewFilterMatcher(to, c.StringSlice("f"))
+	filterMatcherStop := matcher.NewFilterMatcher(from, c.StringSlice("s"))
 
-	if filterMatcherFrom.Matches() || filterMatcherTo.Matches() {
-		return
+	if filterMatcherFrom.Matches() || filterMatcherTo.Matches() || filterMatcherStop.Matches() {
+		return false
 	}
 
 	(*graph).AddNode(from)
 
 	if c.Bool("n") && matcher.NewGoPackagesMatcher(to).Matches() {
-		return
+		return false
 	}
 
 	if c.Bool("m") && !matcher.NewSubPackageMatcher(c.String("p"), to).Matches() {
-		return
+		return false
 	}
 
-	(*graph).AddDirectedEdge(from, to)
+	(*graph).AddDirectedEdge(from, to, description)
+	return true
 }

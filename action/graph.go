@@ -2,7 +2,7 @@ package action
 
 type Graph interface {
 	AddNode(node string)
-	AddDirectedEdge(from, to string)
+	AddDirectedEdge(from, to, description string)
 	GetDependencies(pkg string) []string
 	GetDependents(pkg string) []string
 	String() string
