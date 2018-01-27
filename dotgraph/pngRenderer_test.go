@@ -21,7 +21,7 @@ func TestPngRenderer(t *testing.T) {
 
 	files, _ := ioutil.ReadDir(tmpDir)
 
-	assert.True(t, len(files) == 1)
+	assert.True(t, len(files) == 2)
 	assert.True(t, strings.HasPrefix(files[0].Name(), "my_pkg"))
 	assert.True(t, strings.HasSuffix(files[0].Name(), "png"))
 }

@@ -3,13 +3,14 @@
 * go
 * php (composer)
 
+## TOC
+
 1. [Prerequisites](#prerequisites)
 2. [Installation](#installation)
 3. [Usage](#usage)
 4. [Generate graphs](#generate-graph)
 5. [Examples](#examples)
 6. [Print dependencies](#print-dependencies)
-7. [Future work](#future-work)
 
 ## Prerequisites
 In order to generate graphs you have to install [graphviz](https://graphviz.gitlab.io/)
@@ -61,6 +62,30 @@ OPTIONS:
 ## Generate graphs
 All graphs are written to `~/godepg/<pkg>_timestamp.png` if option `-o` is not present. You can change the home directory by setting the env `GODEPG_HOME`.
 
+### Generate Graphs using yaml file
+When no language subcommand is specified, `godepg` will try to read a config file named `godepg.yml` to generate a dependy graph. You can also specify the config file with the option `--file`. Following, there is a sample config file:
+
+```yaml
+language: php
+output: /home/windler/projects/sample/deps.png
+stopat:
+- laravel
+filter:
+- php
+- tinker
+depth: 3
+```
+
+After creating a config file, you can always update your current dependy graph using
+```bash
+cd /home/windler/projects/sample
+godepg 
+```
+or
+```bash
+godepg --file /home/windler/projects/sample/godepg.yml
+```
+
 ## Examples
 Following, you can find sample outputs.
 
@@ -75,13 +100,13 @@ godepg go -p github.com/windler/ws -o ~/ws_package.png --no-go-packages
 
 #### Only sub packages
 ```bash
-godepg go -p github.com/windler/ws --my-packages-only
+godepg go -p github.com/windler/ws -m
 ```
 ![ws only sub](images/ws_my_only.png)
 
 #### Without go internal packages and custom filter
 ```bash
-godepg go -p github.com/windler/ws --no-go-packages -f=ui -f=/git
+godepg go -p github.com/windler/ws -n -f=ui -f=/git
 ```
 ![ws custom filter](images/ws_custom_filter.png)
 

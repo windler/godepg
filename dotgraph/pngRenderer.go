@@ -34,11 +34,6 @@ func (r PNGRenderer) Render(graphContent string) {
 		log.Fatal("Error creating png.", err.Error())
 	}
 
-	err = os.Remove(dotFile)
-	if err != nil {
-		log.Fatal("Error removing dot file.", err.Error())
-	}
-
 	fmt.Println("Written to " + outFile)
 }
 

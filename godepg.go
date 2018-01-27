@@ -1,14 +1,19 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
+	"regexp"
 
 	"github.com/urfave/cli"
+	"github.com/windler/godepg/action"
 	"github.com/windler/godepg/action/composeraction"
 	"github.com/windler/godepg/action/goaction"
 	"github.com/windler/godepg/dotgraph"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -16,18 +21,17 @@ func main() {
 	app.Author = "Nico Windler"
 	app.Copyright = "2017"
 	app.Action = func(c *cli.Context) {
-		pkg := c.String("p")
-		if pkg == "" {
-			cli.ShowAppHelpAndExit(c, 2)
-		}
-
+		ctx := createContext(c)
 		graph := dotgraph.New("godepg")
-		renderer := &dotgraph.PNGRenderer{
-			HomeDir:    getDefaultHomeDir(),
-			Prefix:     pkg,
-			OutputFile: c.String("output"),
-		}
-		goaction.GenertateGoGraph(graph, renderer, &AppContext{context: c})
+
+		GenerateGraphFromConfig(c.String("file"), graph, ctx)
+	}
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "file",
+			Usage: "the `config-file` to use.",
+			Value: "godepg.yml",
+		},
 	}
 	app.Commands = cli.Commands{
 		createPHPCommand(),
@@ -38,6 +42,16 @@ func main() {
 	app.Usage = "go dependency graph generator"
 
 	app.Run(os.Args)
+}
+
+func createContext(c *cli.Context) AppContext {
+	return AppContext{
+		context:      c,
+		bools:        make(map[string]bool),
+		strings:      make(map[string]string),
+		stringslices: make(map[string][]string),
+		ints:         make(map[string]int),
+	}
 }
 
 func createGOCommand() cli.Command {
@@ -53,38 +67,38 @@ func createGOCommand() cli.Command {
 			renderer := &dotgraph.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     pkg,
-				OutputFile: c.String("output"),
+				OutputFile: c.String("o"),
 			}
-			goaction.GenertateGoGraph(graph, renderer, &AppContext{context: c})
+			goaction.GenertateGoGraph(graph, renderer, createContext(c))
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "o, output",
+				Name:  "o",
 				Usage: "destination `file` to write png to",
 			},
 			cli.StringFlag{
-				Name:  "p, package",
+				Name:  "p",
 				Usage: "the `package` to analyze",
 			},
 			cli.BoolFlag{
-				Name:  "n, no-go-packages",
+				Name:  "n",
 				Usage: "hide gos buildin packages",
 			},
 			cli.IntFlag{
-				Name:  "d, depth",
+				Name:  "d",
 				Value: -1,
 				Usage: "limit the depth of the graph",
 			},
 			cli.StringSliceFlag{
-				Name:  "f, filter",
+				Name:  "f",
 				Usage: "filter package name",
 			},
 			cli.BoolFlag{
-				Name:  "m, my-packages-only",
+				Name:  "m",
 				Usage: "show only subpackages of scanned package",
 			},
 			cli.StringFlag{
-				Name:  "i, info",
+				Name:  "i",
 				Usage: "shows the dependencies for a `package`",
 			},
 			cli.BoolFlag{
@@ -112,29 +126,29 @@ func createPHPCommand() cli.Command {
 			renderer := &dotgraph.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     project,
-				OutputFile: c.String("output"),
+				OutputFile: c.String("o"),
 			}
-			composeraction.ComposerGraphAction(graph, renderer, &AppContext{context: c})
+			composeraction.ComposerGraphAction(graph, renderer, createContext(c))
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "o, output",
+				Name:  "o",
 				Usage: "destination `file` to write png to",
 			},
 			cli.StringFlag{
-				Name:  "p, project",
+				Name:  "p",
 				Usage: "the `project` to analyze",
 			},
 			cli.StringSliceFlag{
-				Name:  "f, filter",
+				Name:  "f",
 				Usage: "filter project name",
 			},
 			cli.StringSliceFlag{
-				Name:  "s, stop-at",
+				Name:  "s",
 				Usage: "dont scan dependencies of package name (pattern)",
 			},
 			cli.IntFlag{
-				Name:  "d, depth",
+				Name:  "d",
 				Value: -1,
 				Usage: "limit the depth of the graph",
 			},
@@ -142,29 +156,135 @@ func createPHPCommand() cli.Command {
 	}
 }
 
+type config struct {
+	Language string
+	Project  string
+	Filter   []string
+	Depth    int
+	StopAt   []string
+	Output   string
+}
+
+//GenerateGraphFromConfig reads a config file and generates a graph based on the config
+func GenerateGraphFromConfig(file string, g action.Graph, c action.Context) {
+	defer (func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	})()
+
+	if _, err := os.Stat(file); err != nil {
+		panic(err)
+	}
+
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		panic(err)
+	}
+
+	cfg := &config{}
+
+	yaml.Unmarshal(data, cfg)
+
+	prepareContext(file, cfg, c)
+	renderer := &dotgraph.PNGRenderer{
+		HomeDir:    getDefaultHomeDir(),
+		Prefix:     "godepg",
+		OutputFile: c.GetStringFlag("o"),
+	}
+
+	switch cfg.Language {
+	case "go":
+		goaction.GenertateGoGraph(g, renderer, c)
+	case "php":
+		composeraction.ComposerGraphAction(g, renderer, c)
+	default:
+		panic("No supported languge defined.")
+	}
+}
+
+func prepareContext(file string, cfg *config, context action.Context) {
+	context.SetStringSliceFlag("f", cfg.Filter)
+	context.SetStringSliceFlag("s", cfg.StopAt)
+
+	fmt.Println(cfg.StopAt)
+
+	context.SetStringFlag("p", cfg.Project)
+	if cfg.Project == "" {
+		re := regexp.MustCompile("(.*)\\/(.+)")
+		projectRoot := re.FindStringSubmatch(file)[1]
+		context.SetStringFlag("p", projectRoot)
+	}
+
+	context.SetIntFlag("d", cfg.Depth)
+	if cfg.Depth == 0 {
+		context.SetIntFlag("d", -1)
+	}
+
+	if cfg.Output != "" {
+		context.SetStringFlag("o", cfg.Output)
+	}
+}
+
 //AppContext provides app flags
 type AppContext struct {
-	context *cli.Context
+	context      *cli.Context
+	strings      map[string]string
+	ints         map[string]int
+	stringslices map[string][]string
+	bools        map[string]bool
 }
 
 //GetStringFlag gets the value of a string flag
 func (ac AppContext) GetStringFlag(flag string) string {
+	if res, found := ac.strings[flag]; found {
+		return res
+	}
 	return ac.context.String(flag)
 }
 
 //GetStringSliceFlag gets all values for a slice flag
 func (ac AppContext) GetStringSliceFlag(flag string) []string {
+	if res, found := ac.stringslices[flag]; found {
+		return res
+	}
 	return ac.context.StringSlice(flag)
 }
 
 //GetIntFlag gets an int-value for a flag
 func (ac AppContext) GetIntFlag(flag string) int {
+	if res, found := ac.ints[flag]; found {
+		return res
+	}
 	return ac.context.Int(flag)
 }
 
 //GetBoolFlag gets a bool-value for a flag
 func (ac AppContext) GetBoolFlag(flag string) bool {
+	if res, found := ac.bools[flag]; found {
+		return res
+	}
 	return ac.context.Bool(flag)
+}
+
+//SetStringFlag sets a string flag
+func (ac AppContext) SetStringFlag(flag, value string) {
+	ac.strings[flag] = value
+}
+
+//SetStringSliceFlag sets a stringslice flag
+func (ac AppContext) SetStringSliceFlag(flag string, value []string) {
+	ac.stringslices[flag] = value
+}
+
+//SetIntFlag sets a int flag
+func (ac AppContext) SetIntFlag(flag string, value int) {
+	ac.ints[flag] = value
+}
+
+//SetBoolFlag sets a bool flag
+func (ac AppContext) SetBoolFlag(flag string, value bool) {
+	ac.bools[flag] = value
 }
 
 func getDefaultHomeDir() string {

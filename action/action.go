@@ -12,6 +12,10 @@ type Context interface {
 	GetStringSliceFlag(flag string) []string
 	GetIntFlag(flag string) int
 	GetBoolFlag(flag string) bool
+	SetStringFlag(flag, value string)
+	SetStringSliceFlag(flag string, value []string)
+	SetIntFlag(flag string, value int)
+	SetBoolFlag(flag string, value bool)
 }
 
 //Matcher filters nodes
