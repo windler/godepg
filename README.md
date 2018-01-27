@@ -19,7 +19,7 @@ In order to generate graphs you have to install [graphviz](https://graphviz.gitl
 go get github.com/windler/godepg
 ``` 
 
-Make sure that your `$GOROOT' is set and is present in your path
+Make sure that your `$GOROOT` is set and is present in your path
 ```bash
 export PATH=$PATH:$GOROOT/bin
 ```
