@@ -4,27 +4,27 @@ import (
 	"strings"
 )
 
-//Graph represents the dependency graph of a package
-type dotGraph struct {
+//DotGraph create a directed graph in dot notation
+type DotGraph struct {
 	name  string
 	edges map[string][]edge
 }
 
 type edge struct {
-	nodeId      string
+	nodeID      string
 	description string
 }
 
 //New creates a new Graph with a given name
-func New(name string) *dotGraph {
-	return &dotGraph{
+func New(name string) *DotGraph {
+	return &DotGraph{
 		name:  name,
 		edges: make(map[string][]edge),
 	}
 }
 
 //AddNode add a node to string. There does not have to be an edge for a node.
-func (g dotGraph) AddNode(node string) {
+func (g DotGraph) AddNode(node string) {
 	new := getIDSafeNodeName(node)
 	if g.edges[new] == nil {
 		g.edges[new] = []edge{}
@@ -32,14 +32,14 @@ func (g dotGraph) AddNode(node string) {
 }
 
 //GetDotFileContent create the content of a dot-file (graphviz)
-func (g dotGraph) String() string {
+func (g DotGraph) String() string {
 	content := []string{"digraph " + g.name + " {"}
 
 	for from, deps := range g.edges {
 		content = append(content, from)
 		for _, to := range deps {
-			if from != `""` && to.nodeId != `""` {
-				content = append(content, from+"->"+to.nodeId+"[label=\""+to.description+"\"]")
+			if from != `""` && to.nodeID != `""` {
+				content = append(content, from+"->"+to.nodeID+"[label=\""+to.description+"\"]")
 			}
 		}
 	}
@@ -59,7 +59,7 @@ func getIDSafeNodeName(id string) string {
 }
 
 //AddDirectedEdge adds an directed edge for two nodes to the graph
-func (g dotGraph) AddDirectedEdge(from, to, description string) {
+func (g DotGraph) AddDirectedEdge(from, to, description string) {
 	saveFrom := getIDSafeNodeName(from)
 	saveTo := getIDSafeNodeName(to)
 
@@ -68,25 +68,25 @@ func (g dotGraph) AddDirectedEdge(from, to, description string) {
 	}
 
 	for _, edge := range g.edges[saveFrom] {
-		if edge.nodeId == saveTo {
+		if edge.nodeID == saveTo {
 			return
 		}
 	}
 
 	g.edges[saveFrom] = append(g.edges[saveFrom], edge{
-		nodeId:      saveTo,
+		nodeID:      saveTo,
 		description: description,
 	})
 }
 
 //GetDependencies returns alls direct dipendencies for a package within the graph
-func (g dotGraph) GetDependencies(pkg string) []string {
+func (g DotGraph) GetDependencies(pkg string) []string {
 	dependencies := []string{}
 
 	for from, deps := range g.edges {
 		if from == getIDSafeNodeName(pkg) {
 			for _, edge := range deps {
-				dependencies = append(dependencies, edge.nodeId)
+				dependencies = append(dependencies, edge.nodeID)
 			}
 		}
 	}
@@ -94,12 +94,12 @@ func (g dotGraph) GetDependencies(pkg string) []string {
 }
 
 //GetDependents returns all packages that directly depend on the given package within the graph
-func (g dotGraph) GetDependents(pkg string) []string {
+func (g DotGraph) GetDependents(pkg string) []string {
 	dependents := []string{}
 loop:
 	for from, deps := range g.edges {
 		for _, to := range deps {
-			if to.nodeId == getIDSafeNodeName(pkg) {
+			if to.nodeID == getIDSafeNodeName(pkg) {
 				dependents = append(dependents, from)
 				continue loop
 			}

@@ -1,5 +1,6 @@
 package action
 
+//Graph represents the dependy graph
 type Graph interface {
 	AddNode(node string)
 	AddDirectedEdge(from, to, description string)
@@ -8,6 +9,7 @@ type Graph interface {
 	String() string
 }
 
+//GraphRenderer renders the graph
 type GraphRenderer interface {
 	Render(graphContent string)
 }

@@ -1,4 +1,4 @@
-package action
+package goaction
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/urfave/cli"
+	"github.com/windler/godepg/action"
 )
 
 type depsValues struct {
@@ -18,8 +18,8 @@ type depsValues struct {
 	DependencyType string
 }
 
-func PrintDeps(depsPkg string, graph *Graph, c *cli.Context) {
-	format := c.String("format")
+func printDeps(depsPkg string, graph *action.Graph, c action.Context) {
+	format := c.GetStringFlag("format")
 	if format == "" {
 		format = "There are {{.Count}} {{.DependencyType}} for package {{.Package}}:\n\n{{range $i, $v := .Dependencies}}{{$i}}: {{$v}}\n{{end}}"
 	}
@@ -27,7 +27,7 @@ func PrintDeps(depsPkg string, graph *Graph, c *cli.Context) {
 	deps := []string{}
 	depsUnquoted := []string{}
 	depsValues := &depsValues{
-		Package: c.String("info"),
+		Package: c.GetStringFlag("info"),
 	}
 
 	t := template.New("deps")
@@ -38,7 +38,7 @@ func PrintDeps(depsPkg string, graph *Graph, c *cli.Context) {
 		return
 	}
 
-	if c.Bool("inverse") {
+	if c.GetBoolFlag("inverse") {
 		deps = (*graph).GetDependents(depsPkg)
 		depsValues.DependencyType = "dependents"
 	} else {

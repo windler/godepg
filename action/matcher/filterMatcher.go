@@ -1,14 +1,16 @@
 package matcher
 
-import "regexp"
+import (
+	"regexp"
+)
 
+//FilterMatcher matches when a text contains a givven pattern
 type FilterMatcher struct {
 	matcher []string
 	text    string
 }
 
-var _ Matcher = &FilterMatcher{}
-
+//NewFilterMatcher create a new FilterMatcher
 func NewFilterMatcher(text string, matcher []string) *FilterMatcher {
 	return &FilterMatcher{
 		text:    text,
@@ -16,6 +18,7 @@ func NewFilterMatcher(text string, matcher []string) *FilterMatcher {
 	}
 }
 
+//Matches applies the filter
 func (f *FilterMatcher) Matches() bool {
 	for _, m := range f.matcher {
 		matches, _ := regexp.MatchString(m, f.text)

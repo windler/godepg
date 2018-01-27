@@ -22,9 +22,9 @@ func TestDotFile(t *testing.T) {
 	g.AddNode("nodeC")
 	g.AddNode("nodeD")
 
-	g.AddDirectedEdge("nodeA", "nodeB")
-	g.AddDirectedEdge("nodeC", "nodeB")
-	g.AddDirectedEdge("nodeA", "nodeC")
+	g.AddDirectedEdge("nodeA", "nodeB", "")
+	g.AddDirectedEdge("nodeC", "nodeB", "fancy")
+	g.AddDirectedEdge("nodeA", "nodeC", "")
 
 	assert.Equal(t, 4, len(g.edges))
 	assert.Equal(t, 2, len(g.edges[`"nodeA"`]))
@@ -34,9 +34,9 @@ func TestDotFile(t *testing.T) {
 
 	dotFile := g.String()
 	assert.True(t, strings.Contains(dotFile, `digraph test_graph`))
-	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeB"`))
-	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeC"`))
-	assert.True(t, strings.Contains(dotFile, `"nodeC"->"nodeB"`))
+	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeB"[label=""]`))
+	assert.True(t, strings.Contains(dotFile, `"nodeA"->"nodeC"[label=""]`))
+	assert.True(t, strings.Contains(dotFile, `"nodeC"->"nodeB"[label="fancy"]`))
 	assert.True(t, strings.Contains(dotFile, `"nodeA"`))
 	assert.True(t, strings.Contains(dotFile, `"nodeB"`))
 	assert.True(t, strings.Contains(dotFile, `"nodeC"`))
@@ -50,8 +50,8 @@ func TestGetDependencies(t *testing.T) {
 	g.AddNode("nodeB")
 	g.AddNode("nodeC")
 
-	g.AddDirectedEdge("nodeA", "nodeB")
-	g.AddDirectedEdge("nodeB", "nodeC")
+	g.AddDirectedEdge("nodeA", "nodeB", "")
+	g.AddDirectedEdge("nodeB", "nodeC", "fancy")
 
 	assert.Equal(t, []string{`"nodeB"`}, g.GetDependencies("nodeA"))
 	assert.Equal(t, []string{}, g.GetDependents("nodeA"))

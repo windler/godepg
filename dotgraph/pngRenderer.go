@@ -10,12 +10,14 @@ import (
 	"time"
 )
 
+//PNGRenderer renders a graph as a png file
 type PNGRenderer struct {
 	HomeDir    string
 	Prefix     string
 	OutputFile string
 }
 
+//Render renders graph content
 func (r PNGRenderer) Render(graphContent string) {
 	outFile := r.getOutputFile()
 	dotFile := outFile + ".dot"

@@ -1,5 +1,7 @@
 # godepg
-`godepg` generates a dependency graph for a go package using `graphviz`.
+`godepg` generates a dependency graph for a project using `graphviz`. Currently, the following laguages are supported:
+* go
+* php (composer)
 
 1. [Prerequisites](#prerequisites)
 2. [Installation](#installation)
@@ -12,13 +14,25 @@
 ## Prerequisites
 In order to generate graphs you have to install [graphviz](https://graphviz.gitlab.io/)
 ## Installation
-`go get github.com/windler/godepg`
+```bash
+go get github.com/windler/godepg
+``` 
+
+Make sure that your `$GOROOT' is set and is present in your path
+```bash
+export PATH=$PATH:$GOROOT/bin
+```
 
 ## Usage
-Simplest way to use the tool is to type `godepg -p <package> -o <file.png>`. There are some options available which you can list via `godepg -h`:
+For each language there is a subcommand. Type `godepg <language> -h` to see a list of available options.
+
+### GO
+```bash
+godepg go -h
+```
 
 ```bash
-GLOBAL OPTIONS:
+OPTIONS:
    -o file, --output file         destination file to write png to
    -p package, --package package  the package to analyze
    -n, --no-go-packages           hide gos buildin packages
@@ -27,42 +41,73 @@ GLOBAL OPTIONS:
    -m, --my-packages-only         show only subpackages of scanned package
    -i package, --info package     shows the dependencies for a package
    --inverse                      shows all packages that depend on the package rather than its dependencies
-   --format value                 formats the dependencies output (--info) (default: "There are {{.Count}} {{.DependencyType}} for package {{.Package}}:\n\n{{range $i, $v := .Dependencies}}{{$i}}: {{$v}}\n{{end}}")
-   --help, -h                     show help
-   --version, -v                  print the version
+   --format value                 formats the dependencies output (--info)
+```
+
+### PHP
+```bash
+godepg php -h
+```
+
+```bash
+OPTIONS:
+   -o file, --output file         destination file to write png to
+   -p project, --project project  the project to analyze
+   -f value, --filter value       filter project name
+   -s value, --stop-at value      dont scan dependencies of package name (pattern)
+   -d value, --depth value        limit the depth of the graph (default: -1)
 ```
 
 ## Generate graphs
 All graphs are written to `~/godepg/<pkg>_timestamp.png` if option `-o` is not present. You can change the home directory by setting the env `GODEPG_HOME`.
 
 ## Examples
-Following, you can find sample outputs of the [ws package](https://github.com/windler/ws).
+Following, you can find sample outputs.
 
-### Without go internal packages and specific output file
+### GO
+Samples for the [ws package](https://github.com/windler/ws) package.
+
+#### Without go internal packages and specific output file
 ```bash
-godepg -p github.com/windler/ws -o ~/ws_package.png --no-go-packages
+godepg go -p github.com/windler/ws -o ~/ws_package.png --no-go-packages
 ```
 ![ws no go packages](images/ws_no_go_pkgs.png)
 
-### Only sub packages
+#### Only sub packages
 ```bash
-godepg -p github.com/windler/ws --my-packages-only
+godepg go -p github.com/windler/ws --my-packages-only
 ```
 ![ws only sub](images/ws_my_only.png)
 
-### Without go internal packages and custom filter
+#### Without go internal packages and custom filter
 ```bash
-godepg -p github.com/windler/ws --no-go-packages -f ui -f /git
+godepg go -p github.com/windler/ws --no-go-packages -f=ui -f=/git
 ```
 ![ws custom filter](images/ws_custom_filter.png)
 
-### godepg package graph
+#### godepg package graph
 ```bash
-godepg -p github.com/windler/godepg -n
+godepg go -p github.com/windler/godepg -n -f mocks
 ```
 ![godepg graph](images/godepg.png)
 
-## Print dependencies
+### PHP
+Samples for a fresh [Laravel](https://github.com/laravel/laravel) installation called `sample`.
+
+#### Dont show laravels dependencies
+```(bash)
+godepg php -p /home/windler/projects/sample -s=laravel
+```
+![rpi no laravel](images/sample_no_lara.png)
+
+#### Hide symfony dependecies
+```(bash)
+godepg php -p /home/windler/projects/sample -f=symfony
+```
+![rpi no laravel](images/sample_no_symf.png)
+
+
+## Print dependencies (GO only)
 You can also just print information about the dependencies of a package by using option `-i`:
 ```(bash)
 godepg -p github.com/windler/ws -i github.com/windler/ws/app/config
@@ -88,7 +133,7 @@ There are 1 dependents for package github.com/windler/ws/app/config:
 ```
 
 ### Modify output
-You can modify the output by passing a (`template`)[https://golang.org/pkg/html/template/] using `--format`: 
+You can modify the output by passing a [`template`](https://golang.org/pkg/html/template/) using `--format`: 
 ```(bash)
 godepg -p github.com/windler/ws -i github.com/windler/ws --format "Deps: {{.Count}}"
 Deps: 5
@@ -102,8 +147,3 @@ You can use the following fields:
 | Count          | Number of found dependencies                       |
 | Dependencies   | Array of packages                                  |
 | DependencyType | Type of the dependencies (dependency or dependent) |
-
-# Future work
-- recognize and render isolated subgraphs
-- render dependencies of go-file 
-
