@@ -139,19 +139,19 @@ godepg --file /home/windler/projects/sample/godepg.yml
 
 | Attribute | Type | Language | Description |
 |--|--|--|--|
-| Language | string | all | the language to use |
-|	Filter | array | all | filters node names (hide) |
-| Depth | int | all | max depth of the graph |
-| Output | string | all | output file of the png (and dot file) |
-|	Edgestyle | map string -> (map string -> string) | all | apply dot attributes to edges. The first map key is a pattern on which nodes the attributes should be applied. If all nodes should be applied use `""`. |
-|	Nodestyle | map string -> string | all | apply node attributes |
-|	Graphstyle | map string -> string | all | apply graph attributes |
-|	Project | string | php | the project the use (relative to wd) |
-|	Exclude | array | php | folders to ignore |
-|	StopAt | array | php | print node but dont scan/print dependencies |
-|	Package | string | go | package name to scan |
-|	NoGoPackages | bool | go | hide go packges in graph |
-| MyPackagesOnly | bool | go | only show subpackages of the scanned package |
+| language | string | all | the language to use |
+|	filter | array | all | filters node names (hide) |
+| depth | int | all | max depth of the graph |
+| output | string | all | output file of the png (and dot file) |
+|	edgestyle | map string -> (map string -> string) | all | apply dot attributes to edges. The first map key is a pattern on which nodes the attributes should be applied. If all nodes should be applied use `""`. |
+|	nodestyle | map string -> string | all | apply node attributes |
+|	graphstyle | map string -> string | all | apply graph attributes |
+|	project | string | php | the project the use (relative to wd) |
+|	exclude | array | php | folders to ignore |
+|	stopat | array | php | print node but dont scan/print dependencies |
+|	package | string | go | package name to scan |
+|	nogopackages | bool | go | hide go packges in graph |
+| mypackagesonly | bool | go | only show subpackages of the scanned package |
 
 ## Examples
 Following, you can find sample outputs.
