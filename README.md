@@ -72,6 +72,7 @@ OPTIONS:
    -f value    filter project name
    -s value    dont scan dependencies of package name (pattern)
    -d value    limit the depth of the graph (default: -1)
+   -e value    exclude folder
 ```
 
 ## Generate graphs

@@ -197,6 +197,10 @@ func createPSR4Command() cli.Command {
 				Value: -1,
 				Usage: "limit the depth of the graph",
 			},
+			cli.StringSliceFlag{
+				Name:  "e",
+				Usage: "exclude folder",
+			},
 		},
 	}
 }
@@ -207,6 +211,7 @@ type config struct {
 	Filter     []string
 	Depth      int
 	StopAt     []string
+	Exclude    []string
 	Output     string
 	Edgestyle  map[string]dotgraph.DotGraphOptions
 	Nodestyle  dotgraph.DotGraphOptions
@@ -264,6 +269,7 @@ func GenerateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context
 func prepareContext(file string, cfg *config, context action.Context) {
 	context.SetStringSliceFlag("f", cfg.Filter)
 	context.SetStringSliceFlag("s", cfg.StopAt)
+	context.SetStringSliceFlag("e", cfg.Exclude)
 
 	context.SetStringFlag("p", cfg.Project)
 	if cfg.Project == "" {

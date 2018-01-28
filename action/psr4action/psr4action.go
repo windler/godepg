@@ -60,6 +60,14 @@ func buildPSR4Graph(graph action.Graph, c action.Context, project string, depth 
 		if info.IsDir() {
 			return nil
 		}
+
+		for _, exclude := range c.GetStringSliceFlag("e") {
+			re := regexp.MustCompile(".*\\/" + exclude + ".*")
+			if match := re.FindStringSubmatch(path); len(match) > 0 {
+				return nil
+			}
+		}
+
 		if filepath.Ext(path) == ".php" {
 			extractDeps(path, deps)
 		}
