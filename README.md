@@ -98,10 +98,10 @@ depth: 3
 ### Styling graphs using config
 If you are using a config file you can also apply any [dot attributes](https://graphviz.gitlab.io/_pages/doc/info/attrs.html) to style your graph. For examle the following config
 ```yaml
-language: php
+language: php-composer
 output: /home/windler/projects/sample/deps.png
 filter:
-- php-composer
+- php
 depth: 3
 edgestyle:
   "":
