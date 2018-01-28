@@ -98,7 +98,7 @@ If you are using a config file you can also apply any [dot attributes](https://g
 language: php-composer
 output: /home/windler/projects/sample/deps.png
 filter:
-- php-composer
+- php
 depth: 3
 edgestyle:
   "":
