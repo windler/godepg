@@ -66,7 +66,7 @@ All graphs are written to `~/godepg/<pkg>_timestamp.png` if option `-o` is not p
 When no language subcommand is specified, `godepg` will try to read a config file named `godepg.yml` to generate a dependy graph. You can also specify the config file with the option `--file`. Following, there is a sample config file:
 
 ```yaml
-language: php
+language: php-composer
 output: /home/windler/projects/sample/deps.png
 stopat:
 - laravel
@@ -82,7 +82,7 @@ If you are using a config file you can also apply any [dot attributes](https://g
 language: php
 output: /home/windler/projects/sample/deps.png
 filter:
-- php
+- php-composer
 depth: 3
 edgestyle:
   "":
@@ -151,13 +151,13 @@ Samples for a fresh [Laravel](https://github.com/laravel/laravel) installation c
 
 #### Dont show laravels dependencies
 ```(bash)
-godepg php -p /home/windler/projects/sample -s=laravel
+godepg php-composer -p /home/windler/projects/sample -s=laravel
 ```
 ![rpi no laravel](images/sample_no_lara.png)
 
 #### Hide symfony dependecies
 ```(bash)
-godepg php -p /home/windler/projects/sample -f=symfony
+godepg php-composer -p /home/windler/projects/sample -f=symfony
 ```
 ![rpi no laravel](images/sample_no_symf.png)
 

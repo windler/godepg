@@ -34,7 +34,7 @@ func main() {
 		},
 	}
 	app.Commands = cli.Commands{
-		createPHPCommand(),
+		createComposerCommand(),
 		createGOCommand(),
 	}
 	app.Version = "1.0.0"
@@ -113,9 +113,9 @@ func createGOCommand() cli.Command {
 	}
 }
 
-func createPHPCommand() cli.Command {
+func createComposerCommand() cli.Command {
 	return cli.Command{
-		Name: "php",
+		Name: "php-composer",
 		Action: func(c *cli.Context) {
 			project := c.String("p")
 			if project == "" {
@@ -207,7 +207,7 @@ func GenerateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context
 	switch cfg.Language {
 	case "go":
 		goaction.GenertateGoGraph(g, renderer, c)
-	case "php":
+	case "php-composer":
 		composeraction.ComposerGraphAction(g, renderer, c)
 	default:
 		panic("No supported languge defined.")
