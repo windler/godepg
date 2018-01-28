@@ -12,6 +12,7 @@ import (
 	"github.com/windler/godepg/action"
 	"github.com/windler/godepg/action/composeraction"
 	"github.com/windler/godepg/action/goaction"
+	"github.com/windler/godepg/action/psr4action"
 	"github.com/windler/godepg/dotgraph"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -36,6 +37,7 @@ func main() {
 	app.Commands = cli.Commands{
 		createComposerCommand(),
 		createGOCommand(),
+		createPSR4Command(),
 	}
 	app.Version = "1.0.0"
 	app.Description = "Create a dependency graph for your go package."
@@ -156,6 +158,49 @@ func createComposerCommand() cli.Command {
 	}
 }
 
+func createPSR4Command() cli.Command {
+	return cli.Command{
+		Name: "php-psr4",
+		Action: func(c *cli.Context) {
+			project := c.String("p")
+			if project == "" {
+				cli.ShowAppHelpAndExit(c, 2)
+			}
+
+			graph := dotgraph.New("php_psr4")
+			renderer := &dotgraph.PNGRenderer{
+				HomeDir:    getDefaultHomeDir(),
+				Prefix:     project,
+				OutputFile: c.String("o"),
+			}
+			psr4action.PSR4GraphAction(graph, renderer, createContext(c))
+		},
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "o",
+				Usage: "destination `file` to write png to",
+			},
+			cli.StringFlag{
+				Name:  "p",
+				Usage: "the `project` to analyze",
+			},
+			cli.StringSliceFlag{
+				Name:  "f",
+				Usage: "filter project name",
+			},
+			cli.StringSliceFlag{
+				Name:  "s",
+				Usage: "dont scan dependencies of package name (pattern)",
+			},
+			cli.IntFlag{
+				Name:  "d",
+				Value: -1,
+				Usage: "limit the depth of the graph",
+			},
+		},
+	}
+}
+
 type config struct {
 	Language   string
 	Project    string
@@ -209,6 +254,8 @@ func GenerateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context
 		goaction.GenertateGoGraph(g, renderer, c)
 	case "php-composer":
 		composeraction.ComposerGraphAction(g, renderer, c)
+	case "php-psr4":
+		psr4action.PSR4GraphAction(g, renderer, c)
 	default:
 		panic("No supported languge defined.")
 	}

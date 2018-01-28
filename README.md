@@ -2,6 +2,7 @@
 `godepg` generates a dependency graph for a project using `graphviz`. Currently, the following laguages are supported:
 * go
 * php (composer)
+* php (psr4)
 
 ## TOC
 
@@ -45,9 +46,9 @@ OPTIONS:
    --format value                 formats the dependencies output (--info)
 ```
 
-### PHP
+### PHP (composer)
 ```bash
-godepg php -h
+godepg php-composer -h
 ```
 
 ```bash
@@ -57,6 +58,20 @@ OPTIONS:
    -f value, --filter value       filter project name
    -s value, --stop-at value      dont scan dependencies of package name (pattern)
    -d value, --depth value        limit the depth of the graph (default: -1)
+```
+
+### PHP (psr4)
+```bash
+godepg php-psr4 -h
+```
+
+```bash
+OPTIONS:
+   -o file     destination file to write png to
+   -p project  the project to analyze
+   -f value    filter project name
+   -s value    dont scan dependencies of package name (pattern)
+   -d value    limit the depth of the graph (default: -1)
 ```
 
 ## Generate graphs
