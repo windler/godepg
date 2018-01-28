@@ -2,19 +2,18 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
-	"regexp"
 
 	"github.com/urfave/cli"
 	"github.com/windler/godepg/action"
 	"github.com/windler/godepg/action/composeraction"
+	"github.com/windler/godepg/action/configaction"
 	"github.com/windler/godepg/action/goaction"
 	"github.com/windler/godepg/action/psr4action"
+	"github.com/windler/godepg/appcontext"
 	"github.com/windler/godepg/dotgraph"
-	yaml "gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -25,13 +24,16 @@ func main() {
 		ctx := createContext(c)
 		graph := dotgraph.New("godepg")
 
-		GenerateGraphFromConfig(c.String("file"), graph, ctx)
+		file := c.String("file")
+		generateGraphFromConfig(file, graph, ctx)
 	}
+	wd, _ := os.Getwd()
+	defaultCfgFile := wd + "/godepg.yml"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "file",
 			Usage: "the `config-file` to use.",
-			Value: "godepg.yml",
+			Value: defaultCfgFile,
 		},
 	}
 	app.Commands = cli.Commands{
@@ -46,13 +48,13 @@ func main() {
 	app.Run(os.Args)
 }
 
-func createContext(c *cli.Context) AppContext {
-	return AppContext{
-		context:      c,
-		bools:        make(map[string]bool),
-		strings:      make(map[string]string),
-		stringslices: make(map[string][]string),
-		ints:         make(map[string]int),
+func createContext(c *cli.Context) appcontext.AppContext {
+	return appcontext.AppContext{
+		Context:      c,
+		Bools:        make(map[string]bool),
+		Strings:      make(map[string]string),
+		Stringslices: make(map[string][]string),
+		Ints:         make(map[string]int),
 	}
 }
 
@@ -205,41 +207,19 @@ func createPSR4Command() cli.Command {
 	}
 }
 
-type config struct {
-	Language   string
-	Project    string
-	Filter     []string
-	Depth      int
-	StopAt     []string
-	Exclude    []string
-	Output     string
-	Edgestyle  map[string]dotgraph.DotGraphOptions
-	Nodestyle  dotgraph.DotGraphOptions
-	Graphstyle dotgraph.DotGraphOptions
-}
-
-//GenerateGraphFromConfig reads a config file and generates a graph based on the config
-func GenerateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context) {
+func generateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context) {
 	defer (func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
 		}
 	})()
 
+	fmt.Println("Using: " + file)
 	if _, err := os.Stat(file); err != nil {
 		panic(err)
 	}
 
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		panic(err)
-	}
-
-	cfg := &config{}
-
-	yaml.Unmarshal(data, cfg)
-
-	prepareContext(file, cfg, c)
+	cfg := configaction.CreateContext(file, c)
 
 	for pattern, options := range cfg.Edgestyle {
 		g.AddEdgeGraphOptions(pattern, options)
@@ -264,89 +244,6 @@ func GenerateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context
 	default:
 		panic("No supported languge defined.")
 	}
-}
-
-func prepareContext(file string, cfg *config, context action.Context) {
-	context.SetStringSliceFlag("f", cfg.Filter)
-	context.SetStringSliceFlag("s", cfg.StopAt)
-	context.SetStringSliceFlag("e", cfg.Exclude)
-
-	context.SetStringFlag("p", cfg.Project)
-	if cfg.Project == "" {
-		re := regexp.MustCompile("(.*)\\/(.+)")
-		projectRoot := re.FindStringSubmatch(file)[1]
-		context.SetStringFlag("p", projectRoot)
-	}
-
-	context.SetIntFlag("d", cfg.Depth)
-	if cfg.Depth == 0 {
-		context.SetIntFlag("d", -1)
-	}
-
-	if cfg.Output != "" {
-		context.SetStringFlag("o", cfg.Output)
-	}
-}
-
-//AppContext provides app flags
-type AppContext struct {
-	context      *cli.Context
-	strings      map[string]string
-	ints         map[string]int
-	stringslices map[string][]string
-	bools        map[string]bool
-}
-
-//GetStringFlag gets the value of a string flag
-func (ac AppContext) GetStringFlag(flag string) string {
-	if res, found := ac.strings[flag]; found {
-		return res
-	}
-	return ac.context.String(flag)
-}
-
-//GetStringSliceFlag gets all values for a slice flag
-func (ac AppContext) GetStringSliceFlag(flag string) []string {
-	if res, found := ac.stringslices[flag]; found {
-		return res
-	}
-	return ac.context.StringSlice(flag)
-}
-
-//GetIntFlag gets an int-value for a flag
-func (ac AppContext) GetIntFlag(flag string) int {
-	if res, found := ac.ints[flag]; found {
-		return res
-	}
-	return ac.context.Int(flag)
-}
-
-//GetBoolFlag gets a bool-value for a flag
-func (ac AppContext) GetBoolFlag(flag string) bool {
-	if res, found := ac.bools[flag]; found {
-		return res
-	}
-	return ac.context.Bool(flag)
-}
-
-//SetStringFlag sets a string flag
-func (ac AppContext) SetStringFlag(flag, value string) {
-	ac.strings[flag] = value
-}
-
-//SetStringSliceFlag sets a stringslice flag
-func (ac AppContext) SetStringSliceFlag(flag string, value []string) {
-	ac.stringslices[flag] = value
-}
-
-//SetIntFlag sets a int flag
-func (ac AppContext) SetIntFlag(flag string, value int) {
-	ac.ints[flag] = value
-}
-
-//SetBoolFlag sets a bool flag
-func (ac AppContext) SetBoolFlag(flag string, value bool) {
-	ac.bools[flag] = value
 }
 
 func getDefaultHomeDir() string {
