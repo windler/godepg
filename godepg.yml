@@ -4,17 +4,3 @@ package: github.com/windler/godepg
 nogopackages: true
 filter:
 - mocks
-edgestyle:
-  "":
-    arrowhead: open
-    color: white
-    fontcolor: white
-    splines: curved
-nodestyle:
-  fillcolor: "#336699" 
-  style: filled
-  fontcolor: white
-  fontname: Courier
-  shape: rectangle
-graphstyle:
-  bgcolor: "#333333"

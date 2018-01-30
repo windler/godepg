@@ -10,13 +10,14 @@ import (
 
 //Config represents the config file
 type Config struct {
-	Language   string
-	Filter     []string
-	Depth      int
-	Output     string
-	Edgestyle  map[string]map[string]string
-	Nodestyle  map[string]string
-	Graphstyle map[string]string
+	Language         string
+	Filter           []string
+	Depth            int
+	Output           string
+	Edgestylepattern map[string]map[string]string
+	Edgestyle        map[string]string
+	Nodestyle        map[string]string
+	Graphstyle       map[string]string
 
 	//PHP
 	Project string

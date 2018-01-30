@@ -10,7 +10,15 @@ func AddEdge(graph action.Graph, from, to, description string, filter action.Gra
 		}
 	}
 
+	if from == "" {
+		return false
+	}
+	//Add node because filter can cause edge to be removed
 	graph.AddNode(from)
+
+	if to == "" {
+		return false
+	}
 
 	for _, f := range filter.GetPostNodeFilters() {
 		if f.Matches() {

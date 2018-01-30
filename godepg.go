@@ -22,7 +22,7 @@ func main() {
 	app.Copyright = "2017"
 	app.Action = func(c *cli.Context) {
 		ctx := createContext(c)
-		graph := dotgraph.New("godepg")
+		graph := createDefaultGraph("godepg")
 
 		file := c.String("file")
 		generateGraphFromConfig(file, graph, ctx)
@@ -48,6 +48,30 @@ func main() {
 	app.Run(os.Args)
 }
 
+func createDefaultGraph(name string) *dotgraph.DotGraph {
+	graph := dotgraph.New(name)
+	graph.SetEdgeGraphOptions(dotgraph.DotGraphOptions{
+		"arrowhead": "open",
+		"color":     "white",
+		"fontcolor": "white",
+		"splines":   "curved",
+	})
+
+	graph.SetNodeGraphOptions(dotgraph.DotGraphOptions{
+		"fillcolor": "#336699",
+		"style":     "filled",
+		"fontcolor": "white",
+		"fontname":  "Courier",
+		"shape":     "rectangle",
+	})
+
+	graph.SetGraphOptions(dotgraph.DotGraphOptions{
+		"bgcolor": "#333333",
+	})
+
+	return graph
+}
+
 func createContext(c *cli.Context) appcontext.AppContext {
 	return appcontext.AppContext{
 		Context:      c,
@@ -67,7 +91,7 @@ func createGOCommand() cli.Command {
 				cli.ShowAppHelpAndExit(c, 2)
 			}
 
-			graph := dotgraph.New("godepg")
+			graph := createDefaultGraph("godepg")
 			renderer := &dotgraph.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     pkg,
@@ -126,7 +150,7 @@ func createComposerCommand() cli.Command {
 				cli.ShowAppHelpAndExit(c, 2)
 			}
 
-			graph := dotgraph.New("php_composer")
+			graph := createDefaultGraph("php_composer")
 			renderer := &dotgraph.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     project,
@@ -169,7 +193,7 @@ func createPSR4Command() cli.Command {
 				cli.ShowAppHelpAndExit(c, 2)
 			}
 
-			graph := dotgraph.New("php_psr4")
+			graph := createDefaultGraph("php_psr4")
 			renderer := &dotgraph.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     project,
@@ -221,10 +245,11 @@ func generateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context
 
 	cfg := configaction.CreateContext(file, c)
 
-	for pattern, options := range cfg.Edgestyle {
-		g.AddEdgeGraphOptions(pattern, options)
+	for pattern, options := range cfg.Edgestylepattern {
+		g.AddEdgeGraphPatternOptions(pattern, options)
 	}
 
+	g.SetEdgeGraphOptions(cfg.Edgestyle)
 	g.SetNodeGraphOptions(cfg.Nodestyle)
 	g.SetGraphOptions(cfg.Graphstyle)
 

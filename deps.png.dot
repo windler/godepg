@@ -1,35 +1,36 @@
 digraph godepg {
 graph [bgcolor="#333333"]
-node [style="filled" fontcolor="white" fontname="Courier" shape="rectangle" fillcolor="#336699"]
-"github.com/windler/godepg/appcontext"
-"github.com/windler/godepg/appcontext"->"github.com/urfave/cli"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg/dotgraph"
-"github.com/windler/godepg"
-"github.com/windler/godepg"->"github.com/urfave/cli"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/action"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/action/composeraction"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/action/configaction"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/action/goaction"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/action/psr4action"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/appcontext"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg"->"github.com/windler/godepg/dotgraph"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg/action/composeraction"
-"github.com/windler/godepg/action/composeraction"->"github.com/windler/godepg/action"[color="white" fontcolor="white" splines="curved" arrowhead="open"]
-"github.com/windler/godepg/action/composeraction"->"github.com/windler/godepg/action/actionhelper"[fontcolor="white" splines="curved" arrowhead="open" color="white"]
-"github.com/windler/godepg/action/composeraction"->"github.com/windler/godepg/action/matcher"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg/action/goaction"
-"github.com/windler/godepg/action/goaction"->"github.com/windler/godepg/action"[splines="curved" arrowhead="open" color="white" fontcolor="white"]
-"github.com/windler/godepg/action/goaction"->"github.com/windler/godepg/action/actionhelper"[fontcolor="white" splines="curved" arrowhead="open" color="white"]
-"github.com/windler/godepg/action/goaction"->"github.com/windler/godepg/action/matcher"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
-"github.com/windler/godepg/action/psr4action"
-"github.com/windler/godepg/action/psr4action"->"github.com/windler/godepg/action"[fontcolor="white" splines="curved" arrowhead="open" color="white"]
-"github.com/windler/godepg/action/psr4action"->"github.com/windler/godepg/action/actionhelper"[color="white" fontcolor="white" splines="curved" arrowhead="open"]
-"github.com/windler/godepg/action/psr4action"->"github.com/windler/godepg/action/matcher"[splines="curved" arrowhead="open" color="white" fontcolor="white"]
-"github.com/windler/godepg/action"
-"github.com/windler/godepg/action/actionhelper"
-"github.com/windler/godepg/action/actionhelper"->"github.com/windler/godepg/action"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
+node [shape="rectangle" fillcolor="#336699" style="filled" fontcolor="white" fontname="Courier"]
+edge [fontcolor="white" splines="curved" arrowhead="open" color="white"]
 "github.com/windler/godepg/action/configaction"
-"github.com/windler/godepg/action/configaction"->"github.com/windler/godepg/action"[color="white" fontcolor="white" splines="curved" arrowhead="open"]
-"github.com/windler/godepg/action/configaction"->"gopkg.in/yaml.v2"[arrowhead="open" color="white" fontcolor="white" splines="curved"]
+"github.com/windler/godepg/action/configaction"->"github.com/windler/godepg/action"
+"github.com/windler/godepg/action/configaction"->"gopkg.in/yaml.v2"
 "github.com/windler/godepg/action/matcher"
+"github.com/windler/godepg/action/psr4action"
+"github.com/windler/godepg/action/psr4action"->"github.com/windler/godepg/action"
+"github.com/windler/godepg/action/psr4action"->"github.com/windler/godepg/action/actionhelper"
+"github.com/windler/godepg/action/psr4action"->"github.com/windler/godepg/action/matcher"
+"github.com/windler/godepg/dotgraph"
+"github.com/windler/godepg/action/actionhelper"
+"github.com/windler/godepg/action/actionhelper"->"github.com/windler/godepg/action"
+"github.com/windler/godepg/action"
+"github.com/windler/godepg/action/composeraction"
+"github.com/windler/godepg/action/composeraction"->"github.com/windler/godepg/action"
+"github.com/windler/godepg/action/composeraction"->"github.com/windler/godepg/action/actionhelper"
+"github.com/windler/godepg/action/composeraction"->"github.com/windler/godepg/action/matcher"
+"github.com/windler/godepg/action/goaction"
+"github.com/windler/godepg/action/goaction"->"github.com/windler/godepg/action"
+"github.com/windler/godepg/action/goaction"->"github.com/windler/godepg/action/actionhelper"
+"github.com/windler/godepg/action/goaction"->"github.com/windler/godepg/action/matcher"
+"github.com/windler/godepg/appcontext"
+"github.com/windler/godepg/appcontext"->"github.com/urfave/cli"
+"github.com/windler/godepg"
+"github.com/windler/godepg"->"github.com/urfave/cli"
+"github.com/windler/godepg"->"github.com/windler/godepg/action"
+"github.com/windler/godepg"->"github.com/windler/godepg/action/composeraction"
+"github.com/windler/godepg"->"github.com/windler/godepg/action/configaction"
+"github.com/windler/godepg"->"github.com/windler/godepg/action/goaction"
+"github.com/windler/godepg"->"github.com/windler/godepg/action/psr4action"
+"github.com/windler/godepg"->"github.com/windler/godepg/appcontext"
+"github.com/windler/godepg"->"github.com/windler/godepg/dotgraph"
 }
