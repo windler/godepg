@@ -103,7 +103,7 @@ output: /home/windler/projects/sample/deps.png
 filter:
 - php
 depth: 3
-edgestyle:
+edgestylepattern:
   "":
     arrowhead: open
     color: white
