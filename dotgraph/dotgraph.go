@@ -12,6 +12,7 @@ type DotGraph struct {
 	edgeOptionsPattern map[string]DotGraphOptions
 	edgeOptions        DotGraphOptions
 	nodeOptions        DotGraphOptions
+	nodeOptionsPattern map[string]DotGraphOptions
 	graphOptions       DotGraphOptions
 }
 
@@ -30,6 +31,7 @@ func New(name string) *DotGraph {
 		edgeOptionsPattern: make(map[string]DotGraphOptions),
 		edgeOptions:        DotGraphOptions{},
 		nodeOptions:        DotGraphOptions{},
+		nodeOptionsPattern: make(map[string]DotGraphOptions),
 		graphOptions:       DotGraphOptions{},
 	}
 }
@@ -56,11 +58,12 @@ func (g DotGraph) String() string {
 	}
 
 	for from, deps := range g.edges {
-		content = append(content, from)
+		nodeStyle := g.createNodeOptionsPatternString(from)
+		content = append(content, from+nodeStyle)
 
 		for _, to := range deps {
 			if from != `""` && to.nodeID != `""` {
-				edgeStyle := g.createEdgeOptionsPatternString(from, to.nodeID, to.description)
+				edgeStyle := g.createEdgeOptionsPatternString(to.nodeID, to.description)
 				content = append(content, from+"->"+to.nodeID+edgeStyle)
 			}
 		}
@@ -70,17 +73,33 @@ func (g DotGraph) String() string {
 	return strings.Join(content, "\n")
 }
 
-func (g DotGraph) createEdgeOptionsPatternString(from, to, description string) string {
+func (g DotGraph) createEdgeOptionsPatternString(to, description string) string {
 	options := []string{}
 	if description != "" {
 		options = append(options, "label=\""+description+"\"")
 	}
 
 	for pattern, ops := range g.edgeOptionsPattern {
-		matchesFrom, _ := regexp.MatchString(pattern, from)
 		matchesTo, _ := regexp.MatchString(pattern, to)
 
-		if matchesFrom || matchesTo {
+		if matchesTo {
+			for attr, val := range ops {
+				options = append(options, strings.ToLower(attr)+"=\""+val+"\"")
+			}
+		}
+	}
+	if len(options) == 0 {
+		return ""
+	}
+
+	return "[" + strings.Join(options, " ") + "]"
+}
+
+func (g DotGraph) createNodeOptionsPatternString(node string) string {
+	options := []string{}
+
+	for pattern, ops := range g.nodeOptionsPattern {
+		if matches, _ := regexp.MatchString(pattern, node); matches {
 			for attr, val := range ops {
 				options = append(options, strings.ToLower(attr)+"=\""+val+"\"")
 			}
@@ -108,6 +127,11 @@ func createGraphOptionsString(gOptions DotGraphOptions) string {
 //AddEdgeGraphPatternOptions adds options that applies options to edges when pattern matches
 func (g DotGraph) AddEdgeGraphPatternOptions(pattern string, options DotGraphOptions) {
 	g.edgeOptionsPattern[pattern] = options
+}
+
+//AddNodeGraphPatternOptions adds options that applies options to nodes when pattern matches
+func (g DotGraph) AddNodeGraphPatternOptions(pattern string, options DotGraphOptions) {
+	g.nodeOptionsPattern[pattern] = options
 }
 
 //SetEdgeGraphOptions sets options that apply to all nodes

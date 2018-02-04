@@ -30,7 +30,7 @@ func TestDotFile(t *testing.T) {
 	assert.Equal(t, 2, len(g.edges[`"nodeA"`]))
 	assert.Equal(t, 0, len(g.edges[`"nodeB"`]))
 	assert.Equal(t, 1, len(g.edges[`"nodeC"`]))
-	assert.Equal(t, 0, len(g.edges[`"nodeD"`]))
+	assert.Equal(t, 0, len(g.edges[`"nodeD"[attr1="val1 attr2="val2"]`]))
 
 	dotFile := g.String()
 	assert.True(t, strings.Contains(dotFile, `digraph test_graph`))
