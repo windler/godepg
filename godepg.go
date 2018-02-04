@@ -7,13 +7,14 @@ import (
 	"os/user"
 
 	"github.com/urfave/cli"
+	"github.com/windler/dotgraph/graph"
+	"github.com/windler/dotgraph/renderer"
 	"github.com/windler/godepg/action"
 	"github.com/windler/godepg/action/composeraction"
 	"github.com/windler/godepg/action/configaction"
 	"github.com/windler/godepg/action/goaction"
 	"github.com/windler/godepg/action/psr4action"
 	"github.com/windler/godepg/appcontext"
-	"github.com/windler/godepg/dotgraph"
 )
 
 func main() {
@@ -48,16 +49,16 @@ func main() {
 	app.Run(os.Args)
 }
 
-func createDefaultGraph(name string) *dotgraph.DotGraph {
-	graph := dotgraph.New(name)
-	graph.SetEdgeGraphOptions(dotgraph.DotGraphOptions{
+func createDefaultGraph(name string) *graph.DotGraph {
+	g := graph.New(name)
+	g.SetEdgeGraphOptions(graph.DotGraphOptions{
 		"arrowhead": "open",
 		"color":     "white",
 		"fontcolor": "white",
 		"splines":   "curved",
 	})
 
-	graph.SetNodeGraphOptions(dotgraph.DotGraphOptions{
+	g.SetNodeGraphOptions(graph.DotGraphOptions{
 		"fillcolor": "#336699",
 		"style":     "filled",
 		"fontcolor": "white",
@@ -65,11 +66,11 @@ func createDefaultGraph(name string) *dotgraph.DotGraph {
 		"shape":     "rectangle",
 	})
 
-	graph.SetGraphOptions(dotgraph.DotGraphOptions{
+	g.SetGraphOptions(graph.DotGraphOptions{
 		"bgcolor": "#333333",
 	})
 
-	return graph
+	return g
 }
 
 func createContext(c *cli.Context) appcontext.AppContext {
@@ -92,7 +93,7 @@ func createGOCommand() cli.Command {
 			}
 
 			graph := createDefaultGraph("godepg")
-			renderer := &dotgraph.PNGRenderer{
+			renderer := &renderer.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     pkg,
 				OutputFile: c.String("o"),
@@ -151,7 +152,7 @@ func createComposerCommand() cli.Command {
 			}
 
 			graph := createDefaultGraph("php_composer")
-			renderer := &dotgraph.PNGRenderer{
+			renderer := &renderer.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     project,
 				OutputFile: c.String("o"),
@@ -194,7 +195,7 @@ func createPSR4Command() cli.Command {
 			}
 
 			graph := createDefaultGraph("php_psr4")
-			renderer := &dotgraph.PNGRenderer{
+			renderer := &renderer.PNGRenderer{
 				HomeDir:    getDefaultHomeDir(),
 				Prefix:     project,
 				OutputFile: c.String("o"),
@@ -231,7 +232,7 @@ func createPSR4Command() cli.Command {
 	}
 }
 
-func generateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context) {
+func generateGraphFromConfig(file string, g *graph.DotGraph, c action.Context) {
 	defer (func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -253,7 +254,7 @@ func generateGraphFromConfig(file string, g *dotgraph.DotGraph, c action.Context
 	g.SetNodeGraphOptions(cfg.Nodestyle)
 	g.SetGraphOptions(cfg.Graphstyle)
 
-	renderer := &dotgraph.PNGRenderer{
+	renderer := &renderer.PNGRenderer{
 		HomeDir:    getDefaultHomeDir(),
 		Prefix:     "godepg",
 		OutputFile: c.GetStringFlag("o"),
