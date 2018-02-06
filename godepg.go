@@ -9,7 +9,6 @@ import (
 	"github.com/urfave/cli"
 	"github.com/windler/dotgraph/graph"
 	"github.com/windler/dotgraph/renderer"
-	"github.com/windler/godepg/action"
 	"github.com/windler/godepg/action/composeraction"
 	"github.com/windler/godepg/action/configaction"
 	"github.com/windler/godepg/action/goaction"
@@ -94,7 +93,7 @@ func createGOCommand() cli.Command {
 
 			graph := createDefaultGraph("godepg")
 			renderer := &renderer.PNGRenderer{
-				HomeDir:    getDefaultHomeDir(),
+				HomeDir:    getDefaultHomeDir(c),
 				Prefix:     pkg,
 				OutputFile: c.String("o"),
 			}
@@ -153,7 +152,7 @@ func createComposerCommand() cli.Command {
 
 			graph := createDefaultGraph("php_composer")
 			renderer := &renderer.PNGRenderer{
-				HomeDir:    getDefaultHomeDir(),
+				HomeDir:    getDefaultHomeDir(c),
 				Prefix:     project,
 				OutputFile: c.String("o"),
 			}
@@ -196,7 +195,7 @@ func createPSR4Command() cli.Command {
 
 			graph := createDefaultGraph("php_psr4")
 			renderer := &renderer.PNGRenderer{
-				HomeDir:    getDefaultHomeDir(),
+				HomeDir:    getDefaultHomeDir(c),
 				Prefix:     project,
 				OutputFile: c.String("o"),
 			}
@@ -232,7 +231,7 @@ func createPSR4Command() cli.Command {
 	}
 }
 
-func generateGraphFromConfig(file string, g *graph.DotGraph, c action.Context) {
+func generateGraphFromConfig(file string, g *graph.DotGraph, c appcontext.AppContext) {
 	defer (func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -255,7 +254,7 @@ func generateGraphFromConfig(file string, g *graph.DotGraph, c action.Context) {
 	g.SetGraphOptions(cfg.Graphstyle)
 
 	renderer := &renderer.PNGRenderer{
-		HomeDir:    getDefaultHomeDir(),
+		HomeDir:    getDefaultHomeDir(c.Context),
 		Prefix:     "godepg",
 		OutputFile: c.GetStringFlag("o"),
 	}
@@ -272,7 +271,11 @@ func generateGraphFromConfig(file string, g *graph.DotGraph, c action.Context) {
 	}
 }
 
-func getDefaultHomeDir() string {
+func getDefaultHomeDir(c *cli.Context) string {
+	if c.String("o") != "" {
+		return ""
+	}
+
 	usr, _ := user.Current()
 	home := usr.HomeDir + "/" + "godepg"
 
