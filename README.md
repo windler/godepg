@@ -162,6 +162,12 @@ Samples for the [ws package](https://github.com/windler/ws) package.
 ```bash
 godepg go -p github.com/windler/ws -o ~/ws_package.png -n
 ```
+or
+
+```bash
+cd /user/windler/go/src/github.com/windler/ws
+godepg go -p . -o ~/ws_package.png -n
+```
 ![ws no go packages](images/ws_no_go_pkgs.png)
 
 #### Only sub packages
