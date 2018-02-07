@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/urfave/cli"
+	"github.com/windler/cli"
 	"github.com/windler/dotgraph/graph"
 	"github.com/windler/dotgraph/renderer"
 	"github.com/windler/godepg/action/composeraction"
@@ -88,7 +88,8 @@ func createGOCommand() cli.Command {
 		Action: func(c *cli.Context) {
 			pkg := c.String("p")
 			if pkg == "" {
-				cli.ShowAppHelpAndExit(c, 2)
+				fmt.Println("You have to specify a package.")
+				return
 			}
 
 			graph := createDefaultGraph("godepg")
@@ -99,6 +100,7 @@ func createGOCommand() cli.Command {
 			}
 			goaction.GenertateGoGraph(graph, renderer, createContext(c))
 		},
+		SkipArgReorder: true,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "o",
@@ -158,6 +160,7 @@ func createComposerCommand() cli.Command {
 			}
 			composeraction.ComposerGraphAction(graph, renderer, createContext(c))
 		},
+		SkipArgReorder: true,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "o",
@@ -201,6 +204,7 @@ func createPSR4Command() cli.Command {
 			}
 			psr4action.PSR4GraphAction(graph, renderer, createContext(c))
 		},
+		SkipArgReorder: true,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "o",

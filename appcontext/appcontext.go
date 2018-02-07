@@ -1,6 +1,8 @@
 package appcontext
 
-import "github.com/urfave/cli"
+import (
+	"github.com/windler/cli"
+)
 
 //AppContext provides app flags
 type AppContext struct {
